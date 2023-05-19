@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"golens-api/config"
 	"log"
 	"os"
 	"os/exec"
@@ -80,12 +79,13 @@ func runGitCommands(path string) error {
 		}
 
 		if info.IsDir() && info.Name() == ".git" {
-			cmd := exec.Command("git", "checkout", config.Cfg.HeadBranch)
+			cmd := exec.Command("git", "checkout", "main")
 			cmd.Dir = path
-			err = cmd.Run()
-			if err != nil {
-				return errors.WithStack(err)
-			}
+			cmd.Run()
+
+			cmd = exec.Command("git", "checkout", "master")
+			cmd.Dir = path
+			cmd.Run()
 
 			cmd = exec.Command("git", "fetch", "&&", "git", "pull")
 			cmd.Dir = path
