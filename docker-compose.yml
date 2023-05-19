@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:alpine
+    environment:
+      POSTGRES_USER: golensdb
+      POSTGRES_PASSWORD: golensdb
+      POSTGRES_DB: golensdb
+      POSTGRES_HOST: golensdb
+    ports:
+      - 5432:5432
+  redis:
+    image: 'bitnami/redis:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - '6379:6379'
+
+volumes:
+  cache:
+    driver: local
