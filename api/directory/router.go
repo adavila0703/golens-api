@@ -9,6 +9,7 @@ import (
 func SubRoutes(router *gin.RouterGroup, group string) {
 	router.
 		Group(group).
+		GET("GetDirectories", api.Handler(GetDirectories)).
 		POST("CreateDirectory", api.Handler(CreateDirectory)).
-		GET("GetDirectories", api.Handler(GetDirectories))
+		POST("CreateDirectories", api.Handler(CreateDirectories))
 }

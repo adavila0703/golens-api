@@ -73,32 +73,20 @@ func GenerateCoverageAndHTMLFiles(path string) error {
 }
 
 func runGitCommands(path string) error {
-	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
+	hasGitDir := hasGitDirectory(path)
 
-		if info.IsDir() && info.Name() == ".git" {
-			cmd := exec.Command("git", "checkout", "main")
-			cmd.Dir = path
-			cmd.Run()
+	if hasGitDir {
+		cmd := exec.Command("git", "checkout", "main")
+		cmd.Dir = path
+		cmd.Run()
 
-			cmd = exec.Command("git", "checkout", "master")
-			cmd.Dir = path
-			cmd.Run()
+		cmd = exec.Command("git", "checkout", "master")
+		cmd.Dir = path
+		cmd.Run()
 
-			cmd = exec.Command("git", "fetch", "&&", "git", "pull")
-			cmd.Dir = path
-			err = cmd.Run()
-			if err != nil {
-				return errors.WithStack(err)
-			}
-		}
-
-		return nil
-	})
-	if err != nil {
-		return errors.WithStack(err)
+		cmd = exec.Command("git", "fetch", "&&", "git", "pull")
+		cmd.Dir = path
+		cmd.Run()
 	}
 
 	return nil
@@ -111,10 +99,7 @@ func GenerateCoverageOut(path string) error {
 
 	cmd := exec.Command("go", "test", "./...", "-coverprofile="+coverageProfile)
 	cmd.Dir = path
-	err := cmd.Run()
-	if err != nil {
-		return errors.WithStack(err)
-	}
+	cmd.Run()
 
 	return nil
 }
@@ -185,4 +170,34 @@ func ParseCoveragePercentage(coverageName string) (float64, error) {
 func GetCoverageNameFromPath(path string) string {
 	pathStrings := strings.Split(path, "\\")
 	return pathStrings[len(pathStrings)-1]
+}
+
+func IsGoDirectory(dirPath string) (bool, error) {
+	dir, err := os.Open(dirPath)
+	if err != nil {
+		return false, err
+	}
+	defer dir.Close()
+
+	files, err := dir.Readdir(-1)
+	if err != nil {
+		return false, err
+	}
+
+	for _, file := range files {
+		if !file.IsDir() && strings.HasSuffix(file.Name(), ".go") {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func hasGitDirectory(path string) bool {
+	gitPath := filepath.Join(path, ".git")
+	_, err := os.Stat(gitPath)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return true
 }

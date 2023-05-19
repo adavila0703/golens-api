@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"golens-api/utils"
 
 	"github.com/gin-gonic/gin"
@@ -23,7 +22,6 @@ func CreateDirectory(ctx *gin.Context, db *gorm.DB, path string) error {
 	}
 
 	result := db.WithContext(ctx).Model(&Directory{}).Where(directory).FirstOrCreate(&directory)
-	fmt.Println("\nexists?", result.RowsAffected)
 	if result.Error != nil {
 		return errors.WithStack(result.Error)
 	}
