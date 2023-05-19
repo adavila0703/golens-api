@@ -2,9 +2,11 @@ package utils
 
 import (
 	"fmt"
+	"golens-api/config"
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -72,16 +74,29 @@ func GenerateCoverageAndHTMLFiles(path string) error {
 }
 
 func runGitCommands(path string) error {
-	cmd := exec.Command("git", "checkout", config)
-	cmd.Dir = path
-	err := cmd.Run()
-	if err != nil {
-		return errors.WithStack(err)
-	}
+	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
 
-	cmd = exec.Command("git", "fetch", "&&", "git", "pull")
-	cmd.Dir = path
-	err = cmd.Run()
+		if info.IsDir() && info.Name() == ".git" {
+			cmd := exec.Command("git", "checkout", config.Cfg.HeadBranch)
+			cmd.Dir = path
+			err = cmd.Run()
+			if err != nil {
+				return errors.WithStack(err)
+			}
+
+			cmd = exec.Command("git", "fetch", "&&", "git", "pull")
+			cmd.Dir = path
+			err = cmd.Run()
+			if err != nil {
+				return errors.WithStack(err)
+			}
+		}
+
+		return nil
+	})
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -142,7 +157,7 @@ func ParseCoveragePercentage(coverageName string) (float64, error) {
 	if err != nil {
 		return 0, errors.WithStack(err)
 	}
-	coverageProfile := fmt.Sprintf("%s/data/%s", workingDir, coverageName)
+	coverageProfile := fmt.Sprintf("%s/data/coverage/%s.out", workingDir, coverageName)
 
 	// Parse the coverage profile
 	profiles, err := cover.ParseProfiles(coverageProfile)

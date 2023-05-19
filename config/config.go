@@ -11,6 +11,7 @@ type config struct {
 	RefreshTokenSecret string `split_words:"true" required:"true"`
 	RedisUsername      string `split_words:"true"`
 	MaxRequests        int64  `split_words:"true" required:"true"`
+	HeadBranch         string `split_words:"true" required:"true"`
 }
 
 var (
