@@ -48,7 +48,12 @@ func MoveCoverageAndHTMLFiles(path string) error {
 }
 
 func GenerateCoverageAndHTMLFiles(path string) error {
-	err := GenerateCoverageOut(path)
+	err := runGitCommands(path)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	err = GenerateCoverageOut(path)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -59,6 +64,24 @@ func GenerateCoverageAndHTMLFiles(path string) error {
 	}
 
 	err = MoveCoverageAndHTMLFiles(path)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	return nil
+}
+
+func runGitCommands(path string) error {
+	cmd := exec.Command("git", "checkout", config)
+	cmd.Dir = path
+	err := cmd.Run()
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	cmd = exec.Command("git", "fetch", "&&", "git", "pull")
+	cmd.Dir = path
+	err = cmd.Run()
 	if err != nil {
 		return errors.WithStack(err)
 	}
