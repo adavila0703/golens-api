@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -163,6 +164,12 @@ func ParseCoveragePercentage(coverageName string) (float64, error) {
 	}
 
 	coveragePercentage := float64(coveredStatements) / float64(totalStatements) * 100
+
+	if math.IsNaN(coveragePercentage) {
+		coveragePercentage = 0
+	} else {
+		coveragePercentage = math.Round(coveragePercentage*100) / 100
+	}
 
 	return coveragePercentage, nil
 }
