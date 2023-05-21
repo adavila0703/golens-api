@@ -15,6 +15,13 @@ type Error struct {
 	Status int
 }
 
+func InternalServerError(err error) *Error {
+	return &Error{
+		Err:    err,
+		Status: http.StatusInternalServerError,
+	}
+}
+
 // runs endpoint function
 func Handler[T any](handleFunc func(*gin.Context, *T, *AuthContext, *clients.GlobalClients) (interface{}, *Error)) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {

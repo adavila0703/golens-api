@@ -4,6 +4,7 @@ import (
 	"golens-api/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
@@ -39,4 +40,18 @@ func GetDirectories(ctx *gin.Context, db *gorm.DB) ([]Directory, error) {
 	}
 
 	return directories, nil
+}
+
+func GetDirectory(ctx *gin.Context, db *gorm.DB, id uuid.UUID) (*Directory, bool, error) {
+	var directory *Directory
+
+	result := db.WithContext(ctx).Model(&Directory{}).Where("id = ?", id).Find(&directory)
+
+	if result.Error != nil {
+		return nil, false, errors.WithStack(result.Error)
+	}
+
+	found := result.RowsAffected > 0
+
+	return directory, found, nil
 }
