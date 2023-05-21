@@ -34,7 +34,7 @@ func GetDirectories(
 	var directoryMaps []map[string]any
 
 	for index, directory := range directories {
-		covPercentage, err := utils.ParseCoveragePercentage(directory.CoverageName)
+		_, covPercentage, err := utils.ParseCoveragePercentage(directory.CoverageName)
 		if err != nil {
 			return nil, &api.Error{
 				Err:    err,
