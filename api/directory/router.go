@@ -11,7 +11,8 @@ func SubRoutes(router *gin.RouterGroup, group string) {
 		Group(group).
 		GET("GetDirectories", api.Handler(GetDirectories)).
 		POST("GetHtmlContents", api.Handler(GetHtmlContents)).
-		POST("GetRepoCoverage", api.Handler(GetRepoCoverage)).
+		POST("GetFileCoverage", api.Handler(GetFileCoverage)).
+		POST("GetPackageCoverage", api.Handler(GetPackageCoverage)).
 		POST("CreateDirectory", api.Handler(CreateDirectory)).
 		POST("CreateDirectories", api.Handler(CreateDirectories))
 }

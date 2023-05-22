@@ -5,6 +5,7 @@ import (
 	"golens-api/api"
 	"golens-api/clients"
 	"golens-api/models"
+	"golens-api/utils"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -23,6 +24,7 @@ type GetHtmlContentsRequest struct {
 type GetHtmlContentsResponse struct {
 	Message     string `json:"message"`
 	HtmlContent string `json:"htmlContent"`
+	LineCount   int    `json:"lineCount"`
 }
 
 func GetHtmlContents(
@@ -37,7 +39,7 @@ func GetHtmlContents(
 	}
 
 	if !found {
-		return &GetRepoCoverageResponse{
+		return &GetHtmlContentsResponse{
 			Message: "Directory not found",
 		}, nil
 	}
@@ -59,18 +61,22 @@ func GetHtmlContents(
 		}
 	}
 
-	fmt.Println(fileID)
-
 	content, err := getElementContentByID(htmlString, fileID)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}
 
-	_ = fmt.Sprintf("<div>%s</div>", content)
+	htmlContent := fmt.Sprintf(`<div id="content"><pre class="file">%s</pre></div>`, content)
+
+	lineCount, err := utils.GetFileLineCount(directory.Path, message.FileName+".go")
+	if err != nil {
+		return nil, api.InternalServerError(err)
+	}
 
 	return &GetHtmlContentsResponse{
 		Message:     "Good!",
-		HtmlContent: htmlString,
+		HtmlContent: htmlContent,
+		LineCount:   lineCount,
 	}, nil
 }
 

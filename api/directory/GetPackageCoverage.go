@@ -10,19 +10,18 @@ import (
 	"github.com/google/uuid"
 )
 
-type GetRepoCoverageRequest struct {
+type GetPackageCoverageRequest struct {
 	ID uuid.UUID `json:"id" validate:"required"`
 }
 
-type GetRepoCoverageResponse struct {
-	Message         string                      `json:"message"`
-	PackageCoverage []map[string]any            `json:"packageCoverage"`
-	FileCoverage    map[string][]map[string]any `json:"fileCoverage"`
+type GetPackageCoverageResponse struct {
+	Message         string           `json:"message"`
+	PackageCoverage []map[string]any `json:"packageCoverage"`
 }
 
-func GetRepoCoverage(
+func GetPackageCoverage(
 	ctx *gin.Context,
-	message *GetRepoCoverageRequest,
+	message *GetPackageCoverageRequest,
 	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
@@ -33,14 +32,9 @@ func GetRepoCoverage(
 	}
 
 	if !found {
-		return &GetRepoCoverageResponse{
+		return &GetPackageCoverageResponse{
 			Message: "Directory not found",
 		}, nil
-	}
-
-	fileCoverage, err := utils.GetFileCoveragePercentage(directory.CoverageName)
-	if err != nil {
-		return nil, api.InternalServerError(err)
 	}
 
 	packageMap, err := utils.GetPackageCoveragePercentage(directory.CoverageName)
@@ -48,16 +42,15 @@ func GetRepoCoverage(
 		return nil, api.InternalServerError(err)
 	}
 
-	repoCoverage := getRepoCoverageResponse(packageMap)
+	packageCoverage := createResponse(packageMap)
 
-	return &GetRepoCoverageResponse{
+	return &GetPackageCoverageResponse{
 		Message:         "Good!",
-		PackageCoverage: repoCoverage,
-		FileCoverage:    fileCoverage,
+		PackageCoverage: packageCoverage,
 	}, nil
 }
 
-func getRepoCoverageResponse(
+func createResponse(
 	packageMap map[string]map[string]int,
 ) []map[string]any {
 	var packageCoverage []map[string]any

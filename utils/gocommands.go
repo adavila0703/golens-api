@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math"
 	"os"
@@ -150,6 +151,54 @@ func GetCoveragePercentageNumber(totalStatements int, coveredStatements int) flo
 	return coveragePercentage
 }
 
+func findFile(rootDir string, targetFile string) (string, error) {
+	var foundPath string
+	err := filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if info.Name() == targetFile {
+			foundPath = path
+			return filepath.SkipDir
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	if foundPath == "" {
+		return "", fmt.Errorf("file '%s' not found", targetFile)
+	}
+
+	return foundPath, nil
+}
+
+func GetFileLineCount(rootPath, fileName string) (int, error) {
+	filePath, err := findFile(rootPath, fileName)
+	if err != nil {
+		return 0, errors.WithStack(err)
+	}
+
+	content, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return 0, errors.WithStack(err)
+	}
+
+	lines := strings.Split(string(content), "\n")
+	lineCount := len(lines)
+
+	// Exclude the last line if it's empty
+	if lineCount > 0 && lines[lineCount-1] == "" {
+		lineCount--
+	}
+
+	return lineCount, nil
+}
+
 func GetPackageCoveragePercentage(coverageName string) (map[string]map[string]int, error) {
 	workingDir, err := os.Getwd()
 	if err != nil {
@@ -159,7 +208,7 @@ func GetPackageCoveragePercentage(coverageName string) (map[string]map[string]in
 
 	profiles, err := cover.ParseProfiles(coverageProfile)
 	if err != nil {
-		log.Fatal(err)
+		return nil, errors.WithStack(err)
 	}
 
 	packageMap := make(map[string]map[string]int)
@@ -195,7 +244,7 @@ func GetFileCoveragePercentage(coverageName string) (map[string][]map[string]any
 
 	profiles, err := cover.ParseProfiles(coverageProfile)
 	if err != nil {
-		log.Fatal(err)
+		return nil, errors.WithStack(err)
 	}
 
 	fileMap := make(map[string][]map[string]any)
@@ -239,7 +288,7 @@ func ParseCoveragePercentage(coverageName string) ([]map[string]any, float64, er
 
 	profiles, err := cover.ParseProfiles(coverageProfile)
 	if err != nil {
-		log.Fatal(err)
+		return nil, 0, errors.WithStack(err)
 	}
 
 	var coverageMaps []map[string]any
