@@ -55,3 +55,14 @@ func GetDirectory(ctx *gin.Context, db *gorm.DB, id uuid.UUID) (*Directory, bool
 
 	return directory, found, nil
 }
+
+func DeleteDirectory(ctx *gin.Context, db *gorm.DB, id uuid.UUID) error {
+	var directory *Directory
+	result := db.WithContext(ctx).Model(&Directory{}).Where("id = ?", id).Delete(&directory)
+
+	if result.Error != nil {
+		return errors.WithStack(result.Error)
+	}
+
+	return nil
+}
