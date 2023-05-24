@@ -29,6 +29,20 @@ func DirectoryExists(ctx *gin.Context, db *gorm.DB, path string) (bool, error) {
 	return found, nil
 }
 
+func DirectoryExistsById(ctx *gin.Context, db *gorm.DB, id uuid.UUID) (bool, error) {
+	var directory *Directory
+
+	result := db.WithContext(ctx).Model(&Directory{}).Where("id = ?", id).Find(&directory)
+
+	if result.Error != nil {
+		return false, errors.WithStack(result.Error)
+	}
+
+	found := result.RowsAffected > 0
+
+	return found, nil
+}
+
 func CreateDirectory(ctx *gin.Context, db *gorm.DB, path string) (*Directory, error) {
 	coverageName := utils.GetCoverageNameFromPath(path)
 	directory := &Directory{
