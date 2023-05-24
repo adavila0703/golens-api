@@ -3,7 +3,6 @@ package directory
 import (
 	"golens-api/api"
 	"golens-api/clients"
-	"golens-api/models"
 	"golens-api/utils"
 	"net/http"
 	"os"
@@ -11,24 +10,23 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
-	"gorm.io/gorm"
 )
 
-type CreateDirectoriesRequest struct {
+type GetRootDirectoryPathsRequest struct {
 	RootPath string `json:"rootPath" validate:"required"`
 }
 
-type CreateDirectoriesResponse struct {
-	Message string `json:"message"`
+type GetRootDirectoryPathsResponse struct {
+	Message string   `json:"message"`
+	Paths   []string `json:"paths"`
 }
 
-func CreateDirectories(
+func GetRootDirectoryPaths(
 	ctx *gin.Context,
-	message *CreateDirectoriesRequest,
+	message *GetRootDirectoryPathsRequest,
 	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
-
 	paths, err := getDirPaths(message.RootPath)
 	if err != nil {
 		return nil, &api.Error{
@@ -37,6 +35,7 @@ func CreateDirectories(
 		}
 	}
 
+	var goPaths []string
 	for _, path := range paths {
 		isGoDir, err := utils.IsGoDirectory(path)
 		if err != nil {
@@ -47,30 +46,13 @@ func CreateDirectories(
 		}
 
 		if isGoDir {
-			err := clients.DB.Transaction(func(tx *gorm.DB) error {
-				err := models.CreateDirectory(ctx, tx, path)
-				if err != nil {
-					return errors.WithStack(err)
-				}
-
-				err = utils.GenerateCoverageAndHTMLFiles(path)
-				if err != nil {
-					return errors.WithStack(err)
-				}
-
-				return nil
-			})
-			if err != nil {
-				return nil, &api.Error{
-					Err:    err,
-					Status: http.StatusInternalServerError,
-				}
-			}
+			goPaths = append(goPaths, path)
 		}
 	}
 
-	return &CreateDirectoriesResponse{
+	return &GetRootDirectoryPathsResponse{
 		Message: "Good!",
+		Paths:   goPaths,
 	}, nil
 }
 

@@ -15,7 +15,21 @@ type Directory struct {
 	CoverageName string
 }
 
-func CreateDirectory(ctx *gin.Context, db *gorm.DB, path string) error {
+func DirectoryExists(ctx *gin.Context, db *gorm.DB, path string) (bool, error) {
+	var directory *Directory
+
+	result := db.WithContext(ctx).Model(&Directory{}).Where("path = ?", path).Find(&directory)
+
+	if result.Error != nil {
+		return false, errors.WithStack(result.Error)
+	}
+
+	found := result.RowsAffected > 0
+
+	return found, nil
+}
+
+func CreateDirectory(ctx *gin.Context, db *gorm.DB, path string) (*Directory, error) {
 	coverageName := utils.GetCoverageNameFromPath(path)
 	directory := &Directory{
 		Path:         path,
@@ -24,10 +38,10 @@ func CreateDirectory(ctx *gin.Context, db *gorm.DB, path string) error {
 
 	result := db.WithContext(ctx).Model(&Directory{}).Where(directory).FirstOrCreate(&directory)
 	if result.Error != nil {
-		return errors.WithStack(result.Error)
+		return nil, errors.WithStack(result.Error)
 	}
 
-	return nil
+	return directory, nil
 }
 
 func GetDirectories(ctx *gin.Context, db *gorm.DB) ([]Directory, error) {

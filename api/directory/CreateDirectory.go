@@ -17,7 +17,8 @@ type CreateDirectoryRequest struct {
 }
 
 type CreateDirectoryResponse struct {
-	Message string `json:"message"`
+	Message   string         `json:"message"`
+	Directory map[string]any `json:"directory"`
 }
 
 func CreateDirectory(
@@ -26,9 +27,19 @@ func CreateDirectory(
 	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
+	found, err := models.DirectoryExists(ctx, clients.DB, message.Path)
+	if err != nil {
+		return nil, api.InternalServerError(err)
+	}
 
-	err := clients.DB.Transaction(func(tx *gorm.DB) error {
-		err := models.CreateDirectory(ctx, tx, message.Path)
+	if found {
+		return nil, nil
+	}
+
+	var directory *models.Directory
+	err = clients.DB.Transaction(func(tx *gorm.DB) error {
+		var err error
+		directory, err = models.CreateDirectory(ctx, tx, message.Path)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -47,7 +58,23 @@ func CreateDirectory(
 		}
 	}
 
+	_, covPercentage, err := utils.ParseCoveragePercentage(directory.CoverageName)
+	if err != nil {
+		return nil, &api.Error{
+			Err:    err,
+			Status: http.StatusInternalServerError,
+		}
+	}
+
+	directoryMap := map[string]any{
+		"id":           directory.ID.String(),
+		"path":         directory.Path,
+		"coverage":     covPercentage,
+		"coverageName": directory.CoverageName,
+	}
+
 	return &CreateDirectoryResponse{
-		Message: "Good!",
+		Message:   "Good!",
+		Directory: directoryMap,
 	}, nil
 }
