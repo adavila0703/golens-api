@@ -10,14 +10,17 @@ var Clients *GlobalClients
 type GlobalClients struct {
 	DB    *gorm.DB
 	Redis *redis.Client
+	Cron  *Cron
 }
 
 func NewGlobalClients(
 	postgres *gorm.DB,
 	redis *redis.Client,
+	cron *Cron,
 ) *GlobalClients {
 	return &GlobalClients{
 		DB:    postgres,
 		Redis: redis,
+		Cron:  cron,
 	}
 }

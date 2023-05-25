@@ -41,10 +41,13 @@ func main() {
 	// 	log.Fatalf("Redis error: %s", redisPing.Err())
 	// }
 
+	cron := clients.InitializeCron()
+
 	// initialize global clients
 	clients.Clients = clients.NewGlobalClients(
 		postgres,
 		nil,
+		cron,
 	)
 
 	// migrate db models

@@ -40,3 +40,15 @@ func GetTaskScheduleByDirectoryID(ctx *gin.Context, db *gorm.DB, directoryID uui
 
 	return taskSchedule, nil
 }
+
+func GetTaskSchedules(ctx *gin.Context, db *gorm.DB) ([]*TaskSchedule, error) {
+	var tasks []*TaskSchedule
+
+	result := db.WithContext(ctx).Model(&TaskSchedule{}).Find(&tasks)
+
+	if result.Error != nil {
+		return nil, errors.WithStack(result.Error)
+	}
+
+	return tasks, nil
+}
