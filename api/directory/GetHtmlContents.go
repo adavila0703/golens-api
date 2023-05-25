@@ -6,7 +6,6 @@ import (
 	"golens-api/clients"
 	"golens-api/models"
 	"golens-api/utils"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -119,7 +118,7 @@ func readHTMLFromFile(name string) (string, error) {
 	}
 	fileName := fmt.Sprintf("%s/data/html/%s.html", workingDir, name)
 
-	content, err := ioutil.ReadFile(fileName)
+	content, err := os.ReadFile(fileName)
 	if err != nil {
 		return "", err
 	}

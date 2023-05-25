@@ -3,6 +3,7 @@ package main
 import (
 	"golens-api/api/directory"
 	"golens-api/api/health"
+	"golens-api/api/settings"
 	"golens-api/clients"
 	"golens-api/config"
 	"golens-api/middleware"
@@ -71,6 +72,7 @@ func main() {
 	// api sub routes
 	apiRouter := router.Group("api")
 	directory.SubRoutes(apiRouter, "directory")
+	settings.SubRoutes(apiRouter, "settings")
 
 	if config.Cfg.HostPort != "" {
 		err = router.Run(config.Cfg.HostPort)

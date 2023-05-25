@@ -7,5 +7,6 @@ import (
 func MigrateModels(db *gorm.DB) {
 	db.AutoMigrate(
 		&Directory{},
+		&TaskSchedule{},
 	)
 }
