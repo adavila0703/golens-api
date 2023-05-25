@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -115,10 +116,7 @@ func GenerateCoverageHTML(path string) error {
 
 	cmd := exec.Command("go", "tool", "cover", "-html="+coverageProfile, "-o", destinationPath)
 	cmd.Dir = path
-	err := cmd.Run()
-	if err != nil {
-		return errors.WithStack(err)
-	}
+	cmd.Run()
 
 	return nil
 }
@@ -322,7 +320,14 @@ func ParseCoveragePercentage(coverageName string) ([]map[string]any, float64, er
 }
 
 func GetCoverageNameFromPath(path string) string {
-	pathStrings := strings.Split(path, "\\")
+	var pathStrings []string
+
+	if runtime.GOOS == "windows" {
+		pathStrings = strings.Split(path, "\\")
+	} else {
+		pathStrings = strings.Split(path, "/")
+	}
+
 	return pathStrings[len(pathStrings)-1]
 }
 
