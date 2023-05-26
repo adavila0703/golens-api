@@ -33,7 +33,7 @@ func CreateTaskSchedule(ctx *gin.Context, db *gorm.DB, directory Directory, sche
 		ScheduleType: scheduleType,
 	}
 
-	result := db.Debug().WithContext(ctx).Model(&TaskSchedule{}).Create(&taskSchedule)
+	result := db.WithContext(ctx).Model(&TaskSchedule{}).Create(&taskSchedule)
 	if result.Error != nil {
 		return nil, errors.WithStack(result.Error)
 	}
@@ -57,7 +57,7 @@ func GetTaskScheduleByDirectoryID(ctx *gin.Context, db *gorm.DB, directoryID uui
 func GetTaskSchedules(ctx *gin.Context, db *gorm.DB) ([]TaskSchedule, error) {
 	var tasks []TaskSchedule
 
-	result := db.WithContext(ctx).Model(&TaskSchedule{}).Find(&tasks)
+	result := db.WithContext(ctx).Joins("Directory").Find(&tasks)
 
 	if result.Error != nil {
 		return nil, errors.WithStack(result.Error)
