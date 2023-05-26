@@ -13,7 +13,7 @@ type TaskSchedule struct {
 	BaseModel
 	ScheduleType utils.CronJobScheduleType
 	DirectoryID  uuid.UUID
-	Directory    *Directory `gorm:"foreignKey:DirectoryID"`
+	Directory    Directory `gorm:"foreignKey:DirectoryID"`
 }
 
 func DeleteTaskSchedule(ctx *gin.Context, db *gorm.DB, id uuid.UUID) error {
@@ -27,13 +27,13 @@ func DeleteTaskSchedule(ctx *gin.Context, db *gorm.DB, id uuid.UUID) error {
 	return nil
 }
 
-func CreateTaskSchedule(ctx *gin.Context, db *gorm.DB, directory *Directory, scheduleType utils.CronJobScheduleType) (*TaskSchedule, error) {
+func CreateTaskSchedule(ctx *gin.Context, db *gorm.DB, directory Directory, scheduleType utils.CronJobScheduleType) (*TaskSchedule, error) {
 	taskSchedule := &TaskSchedule{
-		Directory:    directory,
+		DirectoryID:  directory.ID,
 		ScheduleType: scheduleType,
 	}
 
-	result := db.WithContext(ctx).Model(&TaskSchedule{}).Where(&taskSchedule).FirstOrCreate(&taskSchedule)
+	result := db.Debug().WithContext(ctx).Model(&TaskSchedule{}).Create(&taskSchedule)
 	if result.Error != nil {
 		return nil, errors.WithStack(result.Error)
 	}
@@ -64,4 +64,28 @@ func GetTaskSchedules(ctx *gin.Context, db *gorm.DB) ([]TaskSchedule, error) {
 	}
 
 	return tasks, nil
+}
+
+func GetTaskSchedulesByScheduleType(ctx *gin.Context, db *gorm.DB, scheduleType utils.CronJobScheduleType) ([]TaskSchedule, error) {
+	var tasks []TaskSchedule
+
+	result := db.WithContext(ctx).Model(&TaskSchedule{}).Where("schedule_type = ?", scheduleType).Find(&tasks)
+
+	if result.Error != nil {
+		return nil, errors.WithStack(result.Error)
+	}
+
+	return tasks, nil
+}
+
+func GetTaskSchedule(ctx *gin.Context, db *gorm.DB, id uuid.UUID) (*TaskSchedule, error) {
+	var task *TaskSchedule
+
+	result := db.WithContext(ctx).Model(&TaskSchedule{}).Where("id = ?", id).Find(&task)
+
+	if result.Error != nil {
+		return nil, errors.WithStack(result.Error)
+	}
+
+	return task, nil
 }

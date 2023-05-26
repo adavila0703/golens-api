@@ -57,10 +57,10 @@ func main() {
 	models.MigrateModels(postgres)
 
 	// find running tasks
-	// err = clients.Clients.Cron.ApplyRunningTasks()
-	// if err != nil {
-	// 	log.Fatalf("Cron error: %s", err)
-	// }
+	err = clients.Clients.Cron.ApplyRunningJobs()
+	if err != nil {
+		log.Fatalf("Cron error: %s", err)
+	}
 
 	// set up router
 	router := gin.Default()

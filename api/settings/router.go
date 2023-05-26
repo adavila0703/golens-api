@@ -9,6 +9,9 @@ import (
 func SubRoutes(router *gin.RouterGroup, group string) {
 	router.
 		Group(group).
-		POST("Test", api.Handler(Test)).
-		POST("CreateTask", api.Handler(CreateTask))
+		GET("GetTasks", api.Handler(GetTasks)).
+		POST("DeleteTask", api.Handler(DeleteTask)).
+		POST("CreateTask", api.Handler(CreateTask)).
+		POST("DeleteTasks", api.Handler(DeleteTasks)).
+		POST("CreateTasks", api.Handler(CreateTasks))
 }

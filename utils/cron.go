@@ -3,7 +3,8 @@ package utils
 type CronJobScheduleType int
 
 const (
-	EveryMinute CronJobScheduleType = iota
+	None CronJobScheduleType = iota
+	EveryMinute
 	EveryHour
 	EveryDayAt12AM
 	EveryMondayAt12AM

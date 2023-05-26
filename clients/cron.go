@@ -1,8 +1,8 @@
 package clients
 
 import (
-	"fmt"
 	"golens-api/models"
+	"golens-api/task"
 	"golens-api/utils"
 
 	"github.com/pkg/errors"
@@ -38,27 +38,29 @@ func (c *Cron) RemoveCronJob(id cron.EntryID) {
 	c.CronScheduler.Remove(id)
 }
 
-// func (c *Cron) ApplyRunningTasks() error {
-// 	taskSchedules, err := getTaskSchedules()
-// 	if err != nil {
-// 		return errors.WithStack(err)
-// 	}
+func (c *Cron) ApplyRunningJobs() error {
+	jobs, err := getJobs()
+	if err != nil {
+		return errors.WithStack(err)
+	}
 
-// 	return nil
-// }
+	for _, job := range jobs {
+		if _, err := c.CronScheduler.AddFunc(job.Schedule, task.GetUpdateTaskFunc(job.ScheduleType)); err != nil {
+			return errors.WithStack(err)
+		}
+	}
 
-func printHello() {
-	fmt.Println("hello")
+	return nil
 }
 
-func getTaskSchedules() ([]models.TaskSchedule, error) {
-	var tasks []models.TaskSchedule
+func getJobs() ([]models.CronJob, error) {
+	var jobs []models.CronJob
 
-	result := Clients.DB.Model(&models.TaskSchedule{}).Find(&tasks)
+	result := Clients.DB.Model(&models.CronJob{}).Find(&jobs)
 
 	if result.Error != nil {
 		return nil, errors.WithStack(result.Error)
 	}
 
-	return tasks, nil
+	return jobs, nil
 }
