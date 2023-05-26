@@ -1,6 +1,8 @@
 package models
 
 import (
+	"golens-api/utils"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -9,15 +11,26 @@ import (
 
 type TaskSchedule struct {
 	BaseModel
-	TaskID      int
-	Schedule    string
-	DirectoryID uuid.UUID
-	Directory   Directory `gorm:"foreignKey:DirectoryID"`
+	ScheduleType utils.CronJobScheduleType
+	DirectoryID  uuid.UUID
+	Directory    *Directory `gorm:"foreignKey:DirectoryID"`
 }
 
-func CreateTaskSchedule(ctx *gin.Context, db *gorm.DB, directory *Directory) (*TaskSchedule, error) {
+func DeleteTaskSchedule(ctx *gin.Context, db *gorm.DB, id uuid.UUID) error {
+	var taskSchedule *TaskSchedule
+	result := db.WithContext(ctx).Model(&TaskSchedule{}).Where("id = ?", id).Delete(&taskSchedule)
+
+	if result.Error != nil {
+		return errors.WithStack(result.Error)
+	}
+
+	return nil
+}
+
+func CreateTaskSchedule(ctx *gin.Context, db *gorm.DB, directory *Directory, scheduleType utils.CronJobScheduleType) (*TaskSchedule, error) {
 	taskSchedule := &TaskSchedule{
-		DirectoryID: directory.ID,
+		Directory:    directory,
+		ScheduleType: scheduleType,
 	}
 
 	result := db.WithContext(ctx).Model(&TaskSchedule{}).Where(&taskSchedule).FirstOrCreate(&taskSchedule)
@@ -41,8 +54,8 @@ func GetTaskScheduleByDirectoryID(ctx *gin.Context, db *gorm.DB, directoryID uui
 	return taskSchedule, nil
 }
 
-func GetTaskSchedules(ctx *gin.Context, db *gorm.DB) ([]*TaskSchedule, error) {
-	var tasks []*TaskSchedule
+func GetTaskSchedules(ctx *gin.Context, db *gorm.DB) ([]TaskSchedule, error) {
+	var tasks []TaskSchedule
 
 	result := db.WithContext(ctx).Model(&TaskSchedule{}).Find(&tasks)
 

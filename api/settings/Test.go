@@ -4,14 +4,17 @@ import (
 	"fmt"
 	"golens-api/api"
 	"golens-api/clients"
-	"golens-api/models"
+	"golens-api/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/robfig/cron/v3"
 )
 
 type TestRequest struct {
-	ID uuid.UUID `json:"id"`
+	ID     uuid.UUID    `json:"id"`
+	Num    int          `json:"num"`
+	CronID cron.EntryID `json:"cron"`
 }
 
 type TestResponse struct {
@@ -24,23 +27,16 @@ func Test(
 	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
-	// cronScheduler = cron.New()
-	// cronScheduler.Start()
-	// tasks = []Task{}
-	// newTask := Task{
-	// 	ID:       1,
-	// 	Schedule: "* * * * *",
-	// 	Handler: func() {
-	// 		fmt.Println("hello")
-	// 	},
-	// }
 
-	// cronScheduler.AddFunc(newTask.Schedule, newTask.Handler)
-	// tasks = append(tasks, newTask)
-	// fmt.Println(tasks)
-
-	task, _ := models.GetTaskScheduleByDirectoryID(ctx, clients.DB, message.ID)
-	fmt.Println(task.ID)
+	if message.Num == 0 {
+		_, _ = clients.Cron.CreateCronJob(utils.EveryMinute, func() {
+			fmt.Println("sup yo")
+		})
+		fmt.Println("added task")
+	} else {
+		clients.Cron.RemoveCronJob(message.CronID)
+		fmt.Println("removed task")
+	}
 
 	return &TestResponse{
 		Message: "Good!",

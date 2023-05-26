@@ -1,45 +1,63 @@
 package clients
 
 import (
+	"fmt"
 	"golens-api/models"
+	"golens-api/utils"
 
-	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"github.com/robfig/cron/v3"
 )
 
-type Task struct {
-	ID       cron.EntryID
-	Schedule string
-	Handler  func()
-}
-
 type Cron struct {
 	CronScheduler *cron.Cron
-	Tasks         []Task
 }
 
 func InitializeCron() (*Cron, error) {
-	tasks, err := findRunningTasks()
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
 	cron := &Cron{
 		CronScheduler: cron.New(),
-		Tasks:         tasks,
 	}
 
 	cron.CronScheduler.Start()
+
 	return cron, nil
 }
 
-func findRunningTasks() ([]Task, error) {
-	var tasks []Task
+func (c *Cron) CreateCronJob(schedule utils.CronJobScheduleType, handler func()) (cron.EntryID, error) {
+	cronSchedule := utils.GetCronSchedule(schedule)
 
-	tasks, err := models.GetTaskSchedules(&gin.Context{}, Clients.DB)
+	id, err := c.CronScheduler.AddFunc(cronSchedule, handler)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return 0, errors.WithStack(err)
+	}
+
+	return id, nil
+}
+
+func (c *Cron) RemoveCronJob(id cron.EntryID) {
+	c.CronScheduler.Remove(id)
+}
+
+// func (c *Cron) ApplyRunningTasks() error {
+// 	taskSchedules, err := getTaskSchedules()
+// 	if err != nil {
+// 		return errors.WithStack(err)
+// 	}
+
+// 	return nil
+// }
+
+func printHello() {
+	fmt.Println("hello")
+}
+
+func getTaskSchedules() ([]models.TaskSchedule, error) {
+	var tasks []models.TaskSchedule
+
+	result := Clients.DB.Model(&models.TaskSchedule{}).Find(&tasks)
+
+	if result.Error != nil {
+		return nil, errors.WithStack(result.Error)
 	}
 
 	return tasks, nil

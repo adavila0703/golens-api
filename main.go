@@ -41,7 +41,10 @@ func main() {
 	// 	log.Fatalf("Redis error: %s", redisPing.Err())
 	// }
 
-	cron := clients.InitializeCron()
+	cron, err := clients.InitializeCron()
+	if err != nil {
+		log.Fatalf("Cron error: %s", err)
+	}
 
 	// initialize global clients
 	clients.Clients = clients.NewGlobalClients(
@@ -52,6 +55,12 @@ func main() {
 
 	// migrate db models
 	models.MigrateModels(postgres)
+
+	// find running tasks
+	// err = clients.Clients.Cron.ApplyRunningTasks()
+	// if err != nil {
+	// 	log.Fatalf("Cron error: %s", err)
+	// }
 
 	// set up router
 	router := gin.Default()

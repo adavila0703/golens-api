@@ -1,0 +1,65 @@
+package settings
+
+import (
+	"golens-api/api"
+	"golens-api/clients"
+	"golens-api/models"
+	"golens-api/task"
+	"golens-api/utils"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/pkg/errors"
+	"gorm.io/gorm"
+)
+
+type CreateTaskRequest struct {
+	DirectoryID  uuid.UUID                 `json:"id"`
+	ScheduleType utils.CronJobScheduleType `json:"scheduleType"`
+}
+
+type CreateTaskResponse struct {
+	Message string `json:"message"`
+}
+
+func CreateTask(
+	ctx *gin.Context,
+	message *CreateTaskRequest,
+	authContext *api.AuthContext,
+	clients *clients.GlobalClients,
+) (interface{}, *api.Error) {
+	exists := models.CronJobExists(ctx, clients.DB, message.ScheduleType)
+
+	if !exists {
+		err := clients.DB.Transaction(func(tx *gorm.DB) error {
+			entryID, err := clients.Cron.CreateCronJob(message.ScheduleType, task.GetUpdateTaskFunc(message.ScheduleType))
+			if err != nil {
+				return errors.WithStack(err)
+			}
+
+			_, err = models.CreateCronJob(ctx, tx, message.ScheduleType, entryID)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+
+			return nil
+		})
+		if err != nil {
+			return nil, api.InternalServerError(err)
+		}
+	}
+
+	directory, _, err := models.GetDirectory(ctx, clients.DB, message.DirectoryID)
+	if err != nil {
+		return nil, api.InternalServerError(err)
+	}
+
+	_, err = models.CreateTaskSchedule(ctx, clients.DB, directory, message.ScheduleType)
+	if err != nil {
+		return nil, api.InternalServerError(err)
+	}
+
+	return &CreateTaskResponse{
+		Message: "Good!",
+	}, nil
+}
