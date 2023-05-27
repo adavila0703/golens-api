@@ -3,6 +3,7 @@ package main
 import (
 	"golens-api/api/directory"
 	"golens-api/api/health"
+	"golens-api/api/settings"
 	"golens-api/clients"
 	"golens-api/config"
 	"golens-api/middleware"
@@ -40,14 +41,26 @@ func main() {
 	// 	log.Fatalf("Redis error: %s", redisPing.Err())
 	// }
 
+	cron, err := clients.InitializeCron()
+	if err != nil {
+		log.Fatalf("Cron error: %s", err)
+	}
+
 	// initialize global clients
 	clients.Clients = clients.NewGlobalClients(
 		postgres,
 		nil,
+		cron,
 	)
 
 	// migrate db models
 	models.MigrateModels(postgres)
+
+	// find running tasks
+	err = clients.Clients.Cron.ApplyRunningJobs()
+	if err != nil {
+		log.Fatalf("Cron error: %s", err)
+	}
 
 	// set up router
 	router := gin.Default()
@@ -71,6 +84,7 @@ func main() {
 	// api sub routes
 	apiRouter := router.Group("api")
 	directory.SubRoutes(apiRouter, "directory")
+	settings.SubRoutes(apiRouter, "settings")
 
 	if config.Cfg.HostPort != "" {
 		err = router.Run(config.Cfg.HostPort)
