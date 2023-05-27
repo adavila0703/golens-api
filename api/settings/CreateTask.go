@@ -14,12 +14,14 @@ import (
 )
 
 type CreateTaskRequest struct {
-	DirectoryID  uuid.UUID                 `json:"directoryID" validate:"required"`
+	DirectoryID  uuid.UUID                 `json:"directoryId" validate:"required"`
 	ScheduleType utils.CronJobScheduleType `json:"scheduleType"`
 }
 
 type CreateTaskResponse struct {
-	Message string `json:"message"`
+	Message      string               `json:"message"`
+	Task         *models.TaskSchedule `json:"task"`
+	CoverageName string               `json:"coverageName"`
 }
 
 func CreateTask(
@@ -44,13 +46,15 @@ func CreateTask(
 		return nil, api.InternalServerError(err)
 	}
 
-	_, err = models.CreateTaskSchedule(ctx, clients.DB, *directory, message.ScheduleType)
+	taskSchedule, err := models.CreateTaskSchedule(ctx, clients.DB, *directory, message.ScheduleType)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}
 
 	return &CreateTaskResponse{
-		Message: "Good!",
+		Message:      "Good!",
+		Task:         taskSchedule,
+		CoverageName: directory.CoverageName,
 	}, nil
 }
 
