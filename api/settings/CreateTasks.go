@@ -14,7 +14,8 @@ type CreateTasksRequest struct {
 }
 
 type CreateTasksResponse struct {
-	Message string `json:"message"`
+	Message string                   `json:"message"`
+	Tasks   []map[string]interface{} `json:"tasks"`
 }
 
 func CreateTasks(
@@ -39,14 +40,40 @@ func CreateTasks(
 		return nil, api.InternalServerError(err)
 	}
 
-	for _, directory := range directories {
-		_, err := models.CreateTaskSchedule(ctx, clients.DB, directory, message.ScheduleType)
+	var tasks []map[string]interface{}
+	for index, directory := range directories {
+		taskSchedule, err := models.CreateTaskSchedule(ctx, clients.DB, directory, message.ScheduleType)
 		if err != nil {
 			return nil, api.InternalServerError(err)
 		}
+
+		task := map[string]interface{}{
+			"ID":               taskSchedule.ID,
+			"DirectoryID":      taskSchedule.DirectoryID,
+			"ScheduleType":     taskSchedule.ScheduleType,
+			"id":               index + 1,
+			"coverageName":     directory.CoverageName,
+			"scheduleTypeName": getScheduleTypeName(taskSchedule.ScheduleType),
+		}
+
+		tasks = append(tasks, task)
 	}
 
 	return &CreateTasksResponse{
 		Message: "Good!",
+		Tasks:   tasks,
 	}, nil
+}
+
+func getScheduleTypeName(scheduleType utils.CronJobScheduleType) string {
+	switch scheduleType {
+	case 1:
+		return "Daily"
+	case 2:
+		return "Weekly"
+	case 3:
+		return "Monthly"
+	default:
+		return ""
+	}
 }

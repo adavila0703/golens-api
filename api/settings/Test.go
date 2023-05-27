@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"golens-api/api"
 	"golens-api/clients"
-	"golens-api/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -28,14 +27,10 @@ func Test(
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 
-	if message.Num == 0 {
-		_, _ = clients.Cron.CreateCronJob(utils.EveryMinute, func() {
-			fmt.Println("sup yo")
-		})
-		fmt.Println("added task")
-	} else {
-		clients.Cron.RemoveCronJob(message.CronID)
-		fmt.Println("removed task")
+	entries := clients.Cron.GetEntries()
+
+	for _, entry := range entries {
+		fmt.Println(entry.ID)
 	}
 
 	return &TestResponse{

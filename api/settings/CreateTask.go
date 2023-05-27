@@ -3,8 +3,8 @@ package settings
 import (
 	"golens-api/api"
 	"golens-api/clients"
+	client_funcs "golens-api/clients"
 	"golens-api/models"
-	"golens-api/task"
 	"golens-api/utils"
 
 	"github.com/gin-gonic/gin"
@@ -63,7 +63,7 @@ func handleJobCreation(ctx *gin.Context, clients *clients.GlobalClients, schedul
 
 	if !exists {
 		err := clients.DB.Transaction(func(tx *gorm.DB) error {
-			entryID, err := clients.Cron.CreateCronJob(scheduleType, task.GetUpdateTaskFunc(scheduleType))
+			entryID, err := clients.Cron.CreateCronJob(scheduleType, client_funcs.GetUpdateTaskFunc(scheduleType))
 			if err != nil {
 				return errors.WithStack(err)
 			}

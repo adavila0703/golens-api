@@ -13,5 +13,6 @@ func SubRoutes(router *gin.RouterGroup, group string) {
 		POST("DeleteTask", api.Handler(DeleteTask)).
 		POST("CreateTask", api.Handler(CreateTask)).
 		POST("DeleteTasks", api.Handler(DeleteTasks)).
-		POST("CreateTasks", api.Handler(CreateTasks))
+		POST("CreateTasks", api.Handler(CreateTasks)).
+		POST("Test", api.Handler(Test))
 }

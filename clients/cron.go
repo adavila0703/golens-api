@@ -2,7 +2,6 @@ package clients
 
 import (
 	"golens-api/models"
-	"golens-api/task"
 	"golens-api/utils"
 
 	"github.com/pkg/errors"
@@ -45,12 +44,25 @@ func (c *Cron) ApplyRunningJobs() error {
 	}
 
 	for _, job := range jobs {
-		if _, err := c.CronScheduler.AddFunc(job.Schedule, task.GetUpdateTaskFunc(job.ScheduleType)); err != nil {
+		newEntryID, err := c.CronScheduler.AddFunc(job.Schedule, GetUpdateTaskFunc(job.ScheduleType))
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		job.EntryID = newEntryID
+
+		err = updateJob(job)
+		if err != nil {
 			return errors.WithStack(err)
 		}
 	}
 
 	return nil
+}
+
+func (c *Cron) GetEntries() []cron.Entry {
+	crons := c.CronScheduler.Entries()
+	return crons
 }
 
 func getJobs() ([]models.CronJob, error) {
@@ -63,4 +75,12 @@ func getJobs() ([]models.CronJob, error) {
 	}
 
 	return jobs, nil
+}
+
+func updateJob(cronJob models.CronJob) error {
+	result := Clients.DB.Model(&models.CronJob{}).Where("id = ?", cronJob.ID).Updates(&cronJob)
+	if result.Error != nil {
+		return errors.WithStack(result.Error)
+	}
+	return nil
 }

@@ -15,7 +15,9 @@ require (
 	github.com/onsi/gomega v1.27.4
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.0.4
+	github.com/robfig/cron/v3 v3.0.0
 	github.com/sirupsen/logrus v1.9.0
+	golang.org/x/net v0.8.0
 	golang.org/x/tools v0.7.0
 	gorm.io/driver/postgres v1.3.10
 	gorm.io/gorm v1.23.10
@@ -47,10 +49,8 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
-	github.com/robfig/cron/v3 v3.0.0 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	golang.org/x/crypto v0.7.0 // indirect
-	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/text v0.8.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect

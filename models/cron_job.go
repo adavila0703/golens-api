@@ -17,6 +17,16 @@ type CronJob struct {
 	EntryID      cron.EntryID
 }
 
+func UpdateCronJob(ctx *gin.Context, db *gorm.DB, cronJob *CronJob) error {
+	result := db.WithContext(ctx).Updates(&cronJob)
+
+	if result.Error != nil {
+		return errors.WithStack(result.Error)
+	}
+
+	return nil
+}
+
 func CreateCronJob(ctx *gin.Context, db *gorm.DB, scheduleType utils.CronJobScheduleType, entryID cron.EntryID) (*CronJob, error) {
 	schedule := utils.GetCronSchedule(scheduleType)
 	cronJob := &CronJob{
