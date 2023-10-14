@@ -3,6 +3,7 @@ package directory
 import (
 	"golens-api/api"
 	"golens-api/clients"
+	"golens-api/models"
 	"golens-api/utils"
 	"net/http"
 	"os"
@@ -35,6 +36,19 @@ func GetRootDirectoryPaths(
 		}
 	}
 
+	ignoredDirectoriesMap := make(map[string]bool)
+	ignoredDirectories, err := models.GetIgnoredDirectories(ctx, clients.DB)
+	if err != nil {
+		return nil, &api.Error{
+			Err:    err,
+			Status: http.StatusInternalServerError,
+		}
+	}
+
+	for _, directory := range ignoredDirectories {
+		ignoredDirectoriesMap[directory] = true
+	}
+
 	var goPaths []string
 	for _, path := range paths {
 		isGoDir, err := utils.IsGoDirectory(path)
@@ -45,7 +59,10 @@ func GetRootDirectoryPaths(
 			}
 		}
 
-		if isGoDir {
+		directoryName := utils.GetCoverageNameFromPath(path)
+		_, ok := ignoredDirectoriesMap[directoryName]
+
+		if isGoDir && !ok {
 			goPaths = append(goPaths, path)
 		}
 	}
