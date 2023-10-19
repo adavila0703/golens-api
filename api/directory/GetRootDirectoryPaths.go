@@ -37,13 +37,7 @@ func GetRootDirectoryPaths(
 	}
 
 	ignoredDirectoriesMap := make(map[string]bool)
-	ignoredDirectories, err := models.GetIgnoredDirectories(ctx, clients.DB)
-	if err != nil {
-		return nil, &api.Error{
-			Err:    err,
-			Status: http.StatusInternalServerError,
-		}
-	}
+	ignoredDirectories := models.GetIgnoredDirectories(ctx, clients.DB)
 
 	for _, directory := range ignoredDirectories {
 		ignoredDirectoriesMap[directory] = true

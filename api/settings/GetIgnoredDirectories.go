@@ -23,13 +23,7 @@ func GetIgnoredDirectories(
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 
-	directories, err := models.GetIgnoredDirectories(ctx, clients.DB)
-
-	if err != nil {
-		return nil, &api.Error{
-			Err: err,
-		}
-	}
+	directories := models.GetIgnoredDirectories(ctx, clients.DB)
 
 	return &GetIgnoredDirectoriesResponse{
 		Directories: directories,
