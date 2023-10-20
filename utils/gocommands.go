@@ -210,6 +210,7 @@ func GetPackageCoveragePercentage(coverageName string) (map[string]map[string]in
 	}
 
 	packageMap := make(map[string]map[string]int)
+	fmt.Println(profiles)
 
 	for _, profile := range profiles {
 		packageName := GetPackageNameFromPath(profile.FileName)

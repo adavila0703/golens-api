@@ -1,4 +1,4 @@
-package settings
+package tasks
 
 import (
 	"golens-api/api"

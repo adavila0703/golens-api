@@ -1,4 +1,4 @@
-package settings
+package ignore_directory
 
 import (
 	"golens-api/api"
