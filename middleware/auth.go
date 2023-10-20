@@ -15,7 +15,7 @@ func Auth() gin.HandlerFunc {
 
 		headers := utils.GetAPIHeaders(ctx)
 
-		if containsOrigin(config.Cfg.AllowOrigin, headers.Origin) {
+		if config.Cfg.AllowOrigin != headers.Origin {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 		}
 

@@ -11,7 +11,8 @@ func SubRoutes(router *gin.RouterGroup, group string) {
 		Group(group).
 		GET("GetTasks", api.Handler(GetTasks)).
 		GET("GetIgnoredDirectories", api.Handler(GetIgnoredDirectories)).
-		POST("AddIgnoredDirectory", api.Handler(AddIgnoredDirectory)).
+		POST("CreateIgnoredDirectory", api.Handler(CreateIgnoredDirectory)).
+		POST("DeleteIgnoredDirectory", api.Handler(DeleteIgnoredDirectory)).
 		POST("DeleteTask", api.Handler(DeleteTask)).
 		POST("CreateTask", api.Handler(CreateTask)).
 		POST("DeleteTasks", api.Handler(DeleteTasks)).
