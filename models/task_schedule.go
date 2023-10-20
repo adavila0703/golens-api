@@ -27,7 +27,12 @@ func DeleteTaskSchedule(ctx *gin.Context, db *gorm.DB, id uuid.UUID) error {
 	return nil
 }
 
-func CreateTaskSchedule(ctx *gin.Context, db *gorm.DB, directory Directory, scheduleType utils.CronJobScheduleType) (*TaskSchedule, error) {
+func CreateTaskSchedule(
+	ctx *gin.Context,
+	db *gorm.DB,
+	directory Directory,
+	scheduleType utils.CronJobScheduleType,
+) (*TaskSchedule, error) {
 	taskSchedule := &TaskSchedule{
 		DirectoryID:  directory.ID,
 		ScheduleType: scheduleType,
@@ -66,7 +71,11 @@ func GetTaskSchedules(ctx *gin.Context, db *gorm.DB) ([]TaskSchedule, error) {
 	return tasks, nil
 }
 
-func GetTaskSchedulesByScheduleType(ctx *gin.Context, db *gorm.DB, scheduleType utils.CronJobScheduleType) ([]TaskSchedule, error) {
+func GetTaskSchedulesByScheduleType(
+	ctx *gin.Context,
+	db *gorm.DB,
+	scheduleType utils.CronJobScheduleType,
+) ([]TaskSchedule, error) {
 	var tasks []TaskSchedule
 
 	result := db.WithContext(ctx).Model(&TaskSchedule{}).Where("schedule_type = ?", scheduleType).Find(&tasks)

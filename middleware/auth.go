@@ -15,7 +15,7 @@ func Auth() gin.HandlerFunc {
 
 		headers := utils.GetAPIHeaders(ctx)
 
-		if headers.Origin != config.Cfg.AllowOrigin {
+		if containsOrigin(config.Cfg.AllowOrigin, headers.Origin) {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 		}
 
@@ -25,4 +25,13 @@ func Auth() gin.HandlerFunc {
 
 		ctx.Next()
 	}
+}
+
+func containsOrigin(allowedOrigins []string, origin string) bool {
+	for _, allowedOrigin := range allowedOrigins {
+		if allowedOrigin == origin {
+			return true
+		}
+	}
+	return false
 }

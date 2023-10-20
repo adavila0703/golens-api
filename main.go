@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"golens-api/api/directory"
 	"golens-api/api/health"
 	"golens-api/api/settings"
@@ -64,8 +65,9 @@ func main() {
 
 	// set up router
 	router := gin.Default()
+	fmt.Println("origin", config.Cfg.AllowOrigin)
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{config.Cfg.AllowOrigin},
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"PUT", "PATCH", "GET"},
 		AllowHeaders:     []string{"Origin", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
