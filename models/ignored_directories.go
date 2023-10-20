@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
@@ -11,7 +12,7 @@ type IgnoredDirectories struct {
 	DirectoryName string
 }
 
-func AddIgnoredDirectory(ctx *gin.Context, db *gorm.DB, directoryName string) error {
+func CreateIgnoredDirectory(ctx *gin.Context, db *gorm.DB, directoryName string) error {
 	ignoredDirectories := &IgnoredDirectories{
 		DirectoryName: directoryName,
 	}
@@ -25,19 +26,24 @@ func AddIgnoredDirectory(ctx *gin.Context, db *gorm.DB, directoryName string) er
 	return nil
 }
 
-func GetIgnoredDirectories(ctx *gin.Context, db *gorm.DB) []string {
+func GetIgnoredDirectories(ctx *gin.Context, db *gorm.DB) []IgnoredDirectories {
 	var ignoredDirectories []IgnoredDirectories
-	results := db.WithContext(ctx).Model(IgnoredDirectories{}).First(&ignoredDirectories)
+	results := db.WithContext(ctx).Model(IgnoredDirectories{}).Find(&ignoredDirectories)
 
 	if results.RowsAffected == 0 {
 		return nil
 	}
 
-	var directoryNames []string
+	return ignoredDirectories
+}
 
-	for _, directory := range ignoredDirectories {
-		directoryNames = append(directoryNames, directory.DirectoryName)
+func DeleteIgnoredDirectory(ctx *gin.Context, db *gorm.DB, id uuid.UUID) error {
+	var ignoredDirectory *IgnoredDirectories
+	result := db.WithContext(ctx).Model(&IgnoredDirectories{}).Where("id = ?", id).Delete(&ignoredDirectory)
+
+	if result.Error != nil {
+		return errors.WithStack(result.Error)
 	}
 
-	return directoryNames
+	return nil
 }

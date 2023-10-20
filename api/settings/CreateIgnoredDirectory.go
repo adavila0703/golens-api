@@ -8,22 +8,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type AddIgnoredDirectoryRequest struct {
-	Directory string `json:"directory"`
+type CreateIgnoredDirectoryRequest struct {
+	DirectoryName string `json:"directoryName"`
 }
 
-type AddIgnoredDirectoryResponse struct {
+type CreateIgnoredDirectoryResponse struct {
 	Message string `json:"message"`
 }
 
-func AddIgnoredDirectory(
+func CreateIgnoredDirectory(
 	ctx *gin.Context,
-	message *AddIgnoredDirectoryRequest,
+	message *CreateIgnoredDirectoryRequest,
 	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 
-	err := models.AddIgnoredDirectory(ctx, clients.DB, message.Directory)
+	err := models.CreateIgnoredDirectory(ctx, clients.DB, message.DirectoryName)
 
 	if err != nil {
 		return nil, &api.Error{
@@ -31,7 +31,7 @@ func AddIgnoredDirectory(
 		}
 	}
 
-	return &AddIgnoredDirectoryResponse{
+	return &CreateIgnoredDirectoryResponse{
 		Message: "Good!",
 	}, nil
 }
