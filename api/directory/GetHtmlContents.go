@@ -5,7 +5,6 @@ import (
 	"golens-api/api"
 	"golens-api/clients"
 	"golens-api/models"
-	"golens-api/utils"
 	"os"
 	"strings"
 
@@ -23,7 +22,6 @@ type GetHtmlContentsRequest struct {
 type GetHtmlContentsResponse struct {
 	Message     string `json:"message"`
 	HtmlContent string `json:"htmlContent"`
-	LineCount   int    `json:"lineCount"`
 }
 
 func GetHtmlContents(
@@ -65,18 +63,26 @@ func GetHtmlContents(
 		return nil, api.InternalServerError(err)
 	}
 
-	htmlContent := fmt.Sprintf(`<div id="content"><pre class="file">%s</pre></div>`, content)
+	content = insertLineCount(content)
 
-	lineCount, err := utils.GetFileLineCount(directory.Path, message.FileName+".go")
-	if err != nil {
-		return nil, api.InternalServerError(err)
-	}
+	htmlContent := fmt.Sprintf(`<div id="content"><pre class="file">%s</pre></div>`, content)
 
 	return &GetHtmlContentsResponse{
 		Message:     "Good!",
 		HtmlContent: htmlContent,
-		LineCount:   lineCount,
 	}, nil
+}
+
+func insertLineCount(htmlString string) string {
+	lines := strings.Split(htmlString, "\n")
+	result := ""
+
+	for i, line := range lines {
+		lineNumber := i + 1
+		result += fmt.Sprintf("%d %s\n", lineNumber, line)
+	}
+
+	return result
 }
 
 func getElementContentByID(htmlString string, id string) (string, error) {

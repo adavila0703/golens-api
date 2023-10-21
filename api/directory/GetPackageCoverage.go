@@ -37,32 +37,24 @@ func GetPackageCoverage(
 		}, nil
 	}
 
-	packageMap, err := utils.GetPackageCoveragePercentage(directory.CoverageName)
+	coveredLinesByPackage, err := utils.GetCoveredLinesByPackage(directory.CoverageName)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}
 
-	packageCoverage := createResponse(packageMap)
-
-	return &GetPackageCoverageResponse{
-		Message:         "Good!",
-		PackageCoverage: packageCoverage,
-	}, nil
-}
-
-func createResponse(
-	packageMap map[string]map[string]int,
-) []map[string]any {
 	var packageCoverage []map[string]any
-	for packageName, packageValue := range packageMap {
-		percentage := utils.GetCoveragePercentageNumber(packageValue["totalStatements"], packageValue["coveredStatements"])
+	for packageName, lines := range coveredLinesByPackage {
 		coverage := map[string]any{
-			"packageName": packageName,
-			"coverage":    percentage,
+			"packageName":  packageName,
+			"coveredLines": lines["coveredLines"],
+			"totalLines":   lines["totalLines"],
 		}
 
 		packageCoverage = append(packageCoverage, coverage)
 	}
 
-	return packageCoverage
+	return &GetPackageCoverageResponse{
+		Message:         "Good!",
+		PackageCoverage: packageCoverage,
+	}, nil
 }
