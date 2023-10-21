@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"math"
 	"os"
@@ -137,8 +136,8 @@ func ParseCoverageOut() {
 	}
 }
 
-func GetCoveragePercentageNumber(totalStatements int, coveredStatements int) float64 {
-	coveragePercentage := float64(coveredStatements) / float64(totalStatements) * 100
+func CalculateCoverage(totalLines int, coveredLines int) float64 {
+	coveragePercentage := float64(coveredLines) / float64(totalLines) * 100
 
 	if math.IsNaN(coveragePercentage) {
 		coveragePercentage = 0
@@ -149,55 +148,7 @@ func GetCoveragePercentageNumber(totalStatements int, coveredStatements int) flo
 	return coveragePercentage
 }
 
-func findFile(rootDir string, targetFile string) (string, error) {
-	var foundPath string
-	err := filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if info.Name() == targetFile {
-			foundPath = path
-			return filepath.SkipDir
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return "", err
-	}
-
-	if foundPath == "" {
-		return "", fmt.Errorf("file '%s' not found", targetFile)
-	}
-
-	return foundPath, nil
-}
-
-func GetFileLineCount(rootPath, fileName string) (int, error) {
-	filePath, err := findFile(rootPath, fileName)
-	if err != nil {
-		return 0, errors.WithStack(err)
-	}
-
-	content, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		return 0, errors.WithStack(err)
-	}
-
-	lines := strings.Split(string(content), "\n")
-	lineCount := len(lines)
-
-	// Exclude the last line if it's empty
-	if lineCount > 0 && lines[lineCount-1] == "" {
-		lineCount--
-	}
-
-	return lineCount, nil
-}
-
-func GetPackageCoveragePercentage(coverageName string) (map[string]map[string]int, error) {
+func GetCoveredLinesByPackage(coverageName string) (map[string]map[string]int, error) {
 	workingDir, err := os.Getwd()
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -209,28 +160,28 @@ func GetPackageCoveragePercentage(coverageName string) (map[string]map[string]in
 		return nil, errors.WithStack(err)
 	}
 
-	packageMap := make(map[string]map[string]int)
+	coveredLinesByPackage := make(map[string]map[string]int)
 
 	for _, profile := range profiles {
 		packageName := GetPackageNameFromPath(profile.FileName)
 
-		if _, ok := packageMap[packageName]; !ok {
-			packageMap[packageName] = map[string]int{
-				"totalStatements":   0,
-				"coveredStatements": 0,
+		if _, ok := coveredLinesByPackage[packageName]; !ok {
+			coveredLinesByPackage[packageName] = map[string]int{
+				"totalLines":   0,
+				"coveredLines": 0,
 			}
 		}
 
 		for _, block := range profile.Blocks {
-			packageMap[packageName]["totalStatements"] += block.NumStmt
+			coveredLinesByPackage[packageName]["totalLines"] += block.NumStmt
 
 			if block.Count > 0 {
-				packageMap[packageName]["coveredStatements"] += block.NumStmt
+				coveredLinesByPackage[packageName]["coveredLines"] += block.NumStmt
 			}
 		}
 	}
 
-	return packageMap, nil
+	return coveredLinesByPackage, nil
 }
 
 func GetFileCoveragePercentage(coverageName string) (map[string][]map[string]any, error) {
@@ -248,22 +199,23 @@ func GetFileCoveragePercentage(coverageName string) (map[string][]map[string]any
 	fileMap := make(map[string][]map[string]any)
 
 	for _, profile := range profiles {
-		fileTotalStatements := 0
-		fileCoveredStatements := 0
+		totalLines := 0
+		coveredLines := 0
 		fileName := GetProfileNameFromPath(profile.FileName)
 		packageName := GetPackageNameFromPath(profile.FileName)
 
 		for _, block := range profile.Blocks {
-			fileTotalStatements += block.NumStmt
+			totalLines += block.NumStmt
 
 			if block.Count > 0 {
-				fileCoveredStatements += block.NumStmt
+				coveredLines += block.NumStmt
 			}
 		}
 
 		coverageMap := map[string]any{
-			"fileName": fileName,
-			"coverage": GetCoveragePercentageNumber(fileTotalStatements, fileCoveredStatements),
+			"fileName":     fileName,
+			"totalLines":   totalLines,
+			"coveredLines": coveredLines,
 		}
 
 		if _, ok := fileMap[packageName]; !ok {
@@ -277,46 +229,35 @@ func GetFileCoveragePercentage(coverageName string) (map[string][]map[string]any
 	return fileMap, nil
 }
 
-func ParseCoveragePercentage(coverageName string) ([]map[string]any, float64, error) {
+func GetCoveredLines(coverageName string) (int, int, error) {
 	workingDir, err := os.Getwd()
 	if err != nil {
-		return nil, 0, errors.WithStack(err)
+		return 0, 0, errors.WithStack(err)
 	}
 	coverageProfile := fmt.Sprintf("%s/data/coverage/%s.out", workingDir, coverageName)
 
 	profiles, err := cover.ParseProfiles(coverageProfile)
 	if err != nil {
-		return nil, 0, errors.WithStack(err)
+		return 0, 0, errors.WithStack(err)
 	}
 
-	var coverageMaps []map[string]any
-	totalStatements := 0
-	coveredStatements := 0
-	for index, profile := range profiles {
+	totalLines := 0
+	coveredLines := 0
+	for _, profile := range profiles {
 		profileTotalStatements := 0
 		profileCoveredStatements := 0
-		profileName := GetProfileNameFromPath(profile.FileName)
 
 		for _, block := range profile.Blocks {
 			profileTotalStatements += block.NumStmt
-			totalStatements += block.NumStmt
+			totalLines += block.NumStmt
 			if block.Count > 0 {
-				coveredStatements += block.NumStmt
+				coveredLines += block.NumStmt
 				profileCoveredStatements += block.NumStmt
 			}
 		}
-
-		coverageMap := map[string]any{
-			"profileName": profileName,
-			"coverage":    GetCoveragePercentageNumber(profileTotalStatements, profileCoveredStatements),
-			"item":        index + 1,
-		}
-		coverageMaps = append(coverageMaps, coverageMap)
 	}
 
-	coveragePercentage := GetCoveragePercentageNumber(totalStatements, coveredStatements)
-
-	return coverageMaps, coveragePercentage, nil
+	return totalLines, coveredLines, nil
 }
 
 func GetCoverageNameFromPath(path string) string {

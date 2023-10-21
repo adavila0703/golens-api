@@ -58,7 +58,7 @@ func CreateDirectory(
 		}
 	}
 
-	_, covPercentage, err := utils.ParseCoveragePercentage(directory.CoverageName)
+	totalLines, coveredLines, err := utils.GetCoveredLines(directory.CoverageName)
 	if err != nil {
 		return nil, &api.Error{
 			Err:    err,
@@ -69,7 +69,8 @@ func CreateDirectory(
 	directoryMap := map[string]any{
 		"id":           directory.ID.String(),
 		"path":         directory.Path,
-		"coverage":     covPercentage,
+		"totalLines":   totalLines,
+		"coveredLines": coveredLines,
 		"coverageName": directory.CoverageName,
 	}
 
