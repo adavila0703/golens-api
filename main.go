@@ -30,18 +30,6 @@ func main() {
 		log.Fatalf("Postgres error: %s", err)
 	}
 
-	// initialize redis client
-	// redisClient := clients.NewRedisClient(&redis.Options{
-	// 	Addr:     config.Cfg.RediscloudURL,
-	// 	Username: config.Cfg.RedisUsername,
-	// 	Password: config.Cfg.RedisPassword,
-	// })
-
-	// redisPing := redisClient.Ping(context.Background())
-	// if redisPing.Err() != nil {
-	// 	log.Fatalf("Redis error: %s", redisPing.Err())
-	// }
-
 	cron, err := clients.InitializeCron()
 	if err != nil {
 		log.Fatalf("Cron error: %s", err)
@@ -75,9 +63,6 @@ func main() {
 
 	// api key authentication
 	router.Use(middleware.Auth())
-
-	// rate limiter middleware
-	// router.Use(middleware.Limiter())
 
 	// health route
 	health.SubRoutes(router, "")

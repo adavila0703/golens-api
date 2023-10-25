@@ -28,6 +28,24 @@ func GetRootDirectoryPaths(
 	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
+	isGoDirectory, err := utils.IsGoDirectory(message.RootPath)
+	if isGoDirectory || err != nil {
+
+		if err != nil {
+			return nil, &api.Error{
+				Err:    err,
+				Status: http.StatusInternalServerError,
+			}
+		}
+
+		if isGoDirectory {
+			return nil, &api.Error{
+				Err:    errors.New("Is a go directory"),
+				Status: http.StatusBadRequest,
+			}
+		}
+	}
+
 	paths, err := getDirPaths(message.RootPath)
 	if err != nil {
 		return nil, &api.Error{
