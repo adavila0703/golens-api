@@ -3,6 +3,7 @@ package directory
 import (
 	"fmt"
 	"golens-api/api"
+	"golens-api/api/tasks"
 	"golens-api/clients"
 	"golens-api/models"
 	"os"
@@ -39,6 +40,7 @@ func DeleteDirectory(
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}
+
 	coverageProfile := fmt.Sprintf("%s/data/coverage/%s.out", workingDir, directory.CoverageName)
 	htmlFile := fmt.Sprintf("%s/data/html/%s.html", workingDir, directory.CoverageName)
 
@@ -49,6 +51,21 @@ func DeleteDirectory(
 
 	err = os.Remove(htmlFile)
 	if err != nil {
+		return nil, api.InternalServerError(err)
+	}
+
+	task, err := models.GetTaskScheduleByDirectoryID(ctx, clients.DB, message.ID)
+	if err != nil {
+		return nil, api.InternalServerError(err)
+	}
+
+	deleteTaskRequest := &tasks.DeleteTaskRequest{
+		TaskID:       task.ID,
+		ScheduleType: task.ScheduleType,
+	}
+
+	_, deleteTaskErr := tasks.DeleteTask(ctx, deleteTaskRequest, authContext, clients)
+	if deleteTaskErr != nil {
 		return nil, api.InternalServerError(err)
 	}
 

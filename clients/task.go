@@ -38,7 +38,7 @@ func UpdateCoverageTask_EveryDay() {
 	}
 
 	if len(tasks) == 0 {
-		jobCleanup(utils.EveryDayAt12AM)
+		cronJobCleanup(utils.EveryDayAt12AM)
 		return
 	}
 
@@ -54,7 +54,7 @@ func UpdateCoverageTask_EveryWeek() {
 	}
 
 	if len(tasks) == 0 {
-		jobCleanup(utils.EveryMondayAt12AM)
+		cronJobCleanup(utils.EveryMondayAt12AM)
 		return
 	}
 
@@ -69,7 +69,7 @@ func UpdateCoverageTask_EveryMonth() {
 	}
 
 	if len(tasks) == 0 {
-		jobCleanup(utils.EveryMonthOn1stAt12AM)
+		cronJobCleanup(utils.EveryMonthOn1stAt12AM)
 		return
 	}
 
@@ -92,7 +92,7 @@ func updateCoverageForTasks(tasks []models.TaskSchedule) {
 	}
 }
 
-func jobCleanup(scheduleType utils.CronJobScheduleType) error {
+func cronJobCleanup(scheduleType utils.CronJobScheduleType) error {
 	job, err := getJobsByScheduleType(scheduleType)
 	if err != nil {
 		return errors.WithStack(err)

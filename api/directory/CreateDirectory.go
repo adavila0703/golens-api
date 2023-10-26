@@ -36,6 +36,24 @@ func CreateDirectory(
 		return nil, nil
 	}
 
+	isGoDirectory, err := utils.IsGoDirectory(message.Path)
+	if !isGoDirectory || err != nil {
+
+		if err != nil {
+			return nil, &api.Error{
+				Err:    err,
+				Status: http.StatusInternalServerError,
+			}
+		}
+
+		if isGoDirectory {
+			return nil, &api.Error{
+				Err:    errors.New("Is not a go directory"),
+				Status: http.StatusBadRequest,
+			}
+		}
+	}
+
 	var directory *models.Directory
 	err = clients.DB.Transaction(func(tx *gorm.DB) error {
 		var err error
