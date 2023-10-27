@@ -323,3 +323,5 @@ func hasGitDirectory(path string) bool {
 func GetWorkingDirectory() (string, error) {
 	return os.Getwd()
 }
+
+func RemoveFile() {}
