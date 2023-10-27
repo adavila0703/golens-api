@@ -21,7 +21,6 @@ type GetDirectoriesResponse struct {
 func GetDirectories(
 	ctx *gin.Context,
 	message *GetDirectoriesRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 	directories, err := models.GetDirectories(ctx, clients.DB)

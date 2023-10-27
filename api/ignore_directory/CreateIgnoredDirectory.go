@@ -19,7 +19,6 @@ type CreateIgnoredDirectoryResponse struct {
 func CreateIgnoredDirectory(
 	ctx *gin.Context,
 	message *CreateIgnoredDirectoryRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 

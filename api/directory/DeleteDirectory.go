@@ -23,7 +23,6 @@ type DeleteDirectoryResponse struct {
 func DeleteDirectory(
 	ctx *gin.Context,
 	message *DeleteDirectoryRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 	directory, found, err := models.GetDirectory(ctx, clients.DB, message.ID)
@@ -64,7 +63,7 @@ func DeleteDirectory(
 		ScheduleType: task.ScheduleType,
 	}
 
-	_, deleteTaskErr := tasks.DeleteTask(ctx, deleteTaskRequest, authContext, clients)
+	_, deleteTaskErr := tasks.DeleteTask(ctx, deleteTaskRequest, clients)
 	if deleteTaskErr != nil {
 		return nil, api.InternalServerError(err)
 	}

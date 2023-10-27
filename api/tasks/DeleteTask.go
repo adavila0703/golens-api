@@ -24,7 +24,6 @@ type DeleteTaskResponse struct {
 func DeleteTask(
 	ctx *gin.Context,
 	message *DeleteTaskRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 	if err := models.DeleteTaskSchedule(ctx, clients.DB, message.TaskID); err != nil {

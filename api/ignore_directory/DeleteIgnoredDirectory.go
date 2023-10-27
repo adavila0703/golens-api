@@ -20,7 +20,6 @@ type DeleteIgnoredDirectoryResponse struct {
 func DeleteIgnoredDirectory(
 	ctx *gin.Context,
 	message *DeleteIgnoredDirectoryRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 

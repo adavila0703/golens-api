@@ -23,7 +23,6 @@ type GetFileCoverageResponse struct {
 func GetFileCoverage(
 	ctx *gin.Context,
 	message *GetFileCoverageRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 	directory, found, err := models.GetDirectory(ctx, clients.DB, message.RepoID)

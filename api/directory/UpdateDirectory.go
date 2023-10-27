@@ -23,7 +23,6 @@ type UpdateDirectoryResponse struct {
 func UpdateDirectory(
 	ctx *gin.Context,
 	message *UpdateDirectoryRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 	found, err := models.DirectoryExistsById(ctx, clients.DB, message.ID)

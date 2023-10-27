@@ -22,7 +22,6 @@ type GetPackageCoverageResponse struct {
 func GetPackageCoverage(
 	ctx *gin.Context,
 	message *GetPackageCoverageRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 

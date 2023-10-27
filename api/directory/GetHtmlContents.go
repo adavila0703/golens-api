@@ -15,8 +15,8 @@ import (
 )
 
 type GetHtmlContentsRequest struct {
-	FileName string    `json:"fileName" validate:"required"`
-	RepoID   uuid.UUID `json:"repoId" validate:"required"`
+	FileName    string    `json:"fileName" validate:"required"`
+	DirectoryID uuid.UUID `json:"directoryId" validate:"required"`
 }
 
 type GetHtmlContentsResponse struct {
@@ -27,10 +27,9 @@ type GetHtmlContentsResponse struct {
 func GetHtmlContents(
 	ctx *gin.Context,
 	message *GetHtmlContentsRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
-	directory, found, err := models.GetDirectory(ctx, clients.DB, message.RepoID)
+	directory, found, err := models.GetDirectory(ctx, clients.DB, message.DirectoryID)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}

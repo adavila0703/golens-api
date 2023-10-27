@@ -17,7 +17,6 @@ type HealthCheckResponse struct {
 func HealthCheck(
 	ctx *gin.Context,
 	message *HealthCheckRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 	return &HealthCheckResponse{Message: "Good!"}, nil

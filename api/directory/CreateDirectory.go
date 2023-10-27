@@ -24,7 +24,6 @@ type CreateDirectoryResponse struct {
 func CreateDirectory(
 	ctx *gin.Context,
 	message *CreateDirectoryRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 	found, err := models.DirectoryExists(ctx, clients.DB, message.Path)
@@ -32,13 +31,13 @@ func CreateDirectory(
 		return nil, api.InternalServerError(err)
 	}
 
+	// TODO: change this to return an error which the frontend can handle
 	if found {
 		return nil, nil
 	}
 
-	isGoDirectory, err := utils.IsGoDirectory(message.Path)
+	isGoDirectory, err := utils.IsGoDirectoryF(message.Path)
 	if !isGoDirectory || err != nil {
-
 		if err != nil {
 			return nil, &api.Error{
 				Err:    err,
@@ -46,7 +45,7 @@ func CreateDirectory(
 			}
 		}
 
-		if isGoDirectory {
+		if !isGoDirectory {
 			return nil, &api.Error{
 				Err:    errors.New("Is not a go directory"),
 				Status: http.StatusBadRequest,
@@ -62,7 +61,7 @@ func CreateDirectory(
 			return errors.WithStack(err)
 		}
 
-		err = utils.GenerateCoverageAndHTMLFiles(message.Path)
+		err = utils.GenerateCoverageAndHTMLFilesF(message.Path)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -76,7 +75,7 @@ func CreateDirectory(
 		}
 	}
 
-	totalLines, coveredLines, err := utils.GetCoveredLines(directory.CoverageName)
+	totalLines, coveredLines, err := utils.GetCoveredLinesF(directory.CoverageName)
 	if err != nil {
 		return nil, &api.Error{
 			Err:    err,

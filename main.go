@@ -38,7 +38,6 @@ func main() {
 	// initialize global clients
 	clients.Clients = clients.NewGlobalClients(
 		postgres,
-		nil,
 		cron,
 	)
 

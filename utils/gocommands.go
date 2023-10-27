@@ -14,6 +14,14 @@ import (
 	"golang.org/x/tools/cover"
 )
 
+var (
+	// mocks
+	IsGoDirectoryF                = IsGoDirectory
+	GetCoveredLinesF              = GetCoveredLines
+	GenerateCoverageAndHTMLFilesF = GenerateCoverageAndHTMLFiles
+	GetWorkingDirectoryF          = GetWorkingDirectory
+)
+
 //	go tool cover -html=coverage.out
 
 func MoveFile(path string, extension string, directory string) error {
@@ -310,4 +318,8 @@ func hasGitDirectory(path string) bool {
 		return false
 	}
 	return true
+}
+
+func GetWorkingDirectory() (string, error) {
+	return os.Getwd()
 }
