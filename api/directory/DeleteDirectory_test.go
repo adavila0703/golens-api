@@ -1,7 +1,6 @@
 package directory_test
 
 import (
-	"fmt"
 	"net/http/httptest"
 	"regexp"
 
@@ -12,7 +11,9 @@ import (
 	. "github.com/onsi/gomega"
 	"gorm.io/gorm"
 
+	"golens-api/api"
 	"golens-api/api/directory"
+	"golens-api/api/tasks"
 	"golens-api/clients"
 	"golens-api/utils"
 )
@@ -47,7 +48,7 @@ var _ = Describe("DeleteDirectory", Ordered, func() {
 		`)).
 			WithArgs(expectedID).
 			WillReturnRows(
-				sqlmock.NewRows([]string{"id"}).AddRow(uuid.New()),
+				sqlmock.NewRows([]string{"id", "coverage_name"}).AddRow(uuid.New(), "test"),
 			)
 
 		mock.ExpectBegin()
@@ -66,14 +67,41 @@ var _ = Describe("DeleteDirectory", Ordered, func() {
 		mock.ExpectCommit()
 
 		utils.GetWorkingDirectoryF = func() (string, error) {
-			return "./", nil
+			return ".", nil
 		}
 
-		res, err := directory.DeleteDirectory(mockContext, req, mockClients)
-		fmt.Println(res, err)
+		expectedProfilePath := "./data/coverage/test.out"
+		expectedHtmlFile := "./data/html/test.html"
 
-		// Expect(err).To(BeNil())
-		// Expect(res.(*directory.CreateDirectoryResponse).Directory["path"]).To(Equal(expectedPath))
+		utils.RemoveFileF = func(file string) error {
+			Expect(file).To(BeElementOf(expectedProfilePath, expectedHtmlFile))
+			return nil
+		}
+
+		expectedTaskID := uuid.New()
+		mock.ExpectQuery(regexp.QuoteMeta(`
+		SELECT * FROM "task_schedules" 
+		WHERE "task_schedules"."directory_id" = $1 
+			AND "task_schedules"."deleted_at" IS NULL
+		`)).WithArgs(
+			expectedID,
+		).WillReturnRows(
+			sqlmock.NewRows([]string{"id", "schedule_type"}).AddRow(expectedTaskID, 2),
+		)
+
+		tasks.DeleteTaskF = func(
+			ctx *gin.Context,
+			message *tasks.DeleteTaskRequest,
+			clients *clients.GlobalClients,
+		) (interface{}, *api.Error) {
+			Expect(message.TaskID).To(Equal(expectedTaskID))
+			Expect(message.ScheduleType).To(Equal(utils.EveryHour))
+			return nil, nil
+		}
+
+		_, err := directory.DeleteDirectory(mockContext, req, mockClients)
+
+		Expect(err).To(BeNil())
 	})
 
 	AfterEach(func() {

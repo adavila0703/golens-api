@@ -20,6 +20,7 @@ var (
 	GetCoveredLinesF              = GetCoveredLines
 	GenerateCoverageAndHTMLFilesF = GenerateCoverageAndHTMLFiles
 	GetWorkingDirectoryF          = GetWorkingDirectory
+	RemoveFileF                   = RemoveFile
 )
 
 //	go tool cover -html=coverage.out
@@ -324,4 +325,6 @@ func GetWorkingDirectory() (string, error) {
 	return os.Getwd()
 }
 
-func RemoveFile() {}
+func RemoveFile(file string) error {
+	return os.Remove(file)
+}

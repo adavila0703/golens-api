@@ -12,6 +12,11 @@ import (
 	"gorm.io/gorm"
 )
 
+var (
+	// mocks
+	DeleteTaskF = DeleteTask
+)
+
 type DeleteTaskRequest struct {
 	TaskID       uuid.UUID                 `json:"taskID" validate:"required"`
 	ScheduleType utils.CronJobScheduleType `json:"scheduleType"`
