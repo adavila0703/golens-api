@@ -36,7 +36,7 @@ func GetFileCoverage(
 		}, nil
 	}
 
-	fileCoverage, err := utils.GetFileCoveragePercentage(directory.CoverageName)
+	fileCoverage, err := utils.GetFileCoveragePercentageF(directory.CoverageName)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}

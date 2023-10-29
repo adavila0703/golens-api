@@ -24,7 +24,6 @@ func GetPackageCoverage(
 	message *GetPackageCoverageRequest,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
-
 	directory, found, err := models.GetDirectory(ctx, clients.DB, message.ID)
 	if err != nil {
 		return nil, api.InternalServerError(err)
@@ -36,7 +35,7 @@ func GetPackageCoverage(
 		}, nil
 	}
 
-	coveredLinesByPackage, err := utils.GetCoveredLinesByPackage(directory.CoverageName)
+	coveredLinesByPackage, err := utils.GetCoveredLinesByPackageF(directory.CoverageName)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}

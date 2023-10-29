@@ -25,18 +25,13 @@ func UpdateDirectory(
 	message *UpdateDirectoryRequest,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
-	found, err := models.DirectoryExistsById(ctx, clients.DB, message.ID)
+	directory, found, err := models.GetDirectory(ctx, clients.DB, message.ID)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}
 
 	if !found {
 		return nil, nil
-	}
-
-	directory, _, err := models.GetDirectory(ctx, clients.DB, message.ID)
-	if err != nil {
-		return nil, api.InternalServerError(err)
 	}
 
 	err = utils.GenerateCoverageAndHTMLFiles(directory.Path)
