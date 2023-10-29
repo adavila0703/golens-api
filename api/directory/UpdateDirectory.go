@@ -4,7 +4,6 @@ import (
 	"golens-api/api"
 	"golens-api/clients"
 	"golens-api/models"
-	"golens-api/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -34,12 +33,12 @@ func UpdateDirectory(
 		return nil, nil
 	}
 
-	err = utils.GenerateCoverageAndHTMLFilesF(directory.Path)
+	err = clients.Utils.GenerateCoverageAndHTMLFiles(directory.Path)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}
 
-	totalLines, coveredLines, err := utils.GetCoveredLinesF(directory.CoverageName)
+	totalLines, coveredLines, err := clients.Utils.GetCoveredLines(directory.CoverageName)
 	if err != nil {
 		return nil, &api.Error{
 			Err:    err,

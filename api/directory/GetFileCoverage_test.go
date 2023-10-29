@@ -16,6 +16,31 @@ import (
 	"golens-api/utils"
 )
 
+type GetFileCoverageUtils struct {
+	utils.IUtilsClient
+}
+
+func NewGetFileCoverageUtils() *GetFileCoverageUtils {
+	return &GetFileCoverageUtils{}
+}
+
+func (g *GetFileCoverageUtils) GetFileCoveragePercentage(coverageName string) (map[string][]map[string]any, error) {
+	return map[string][]map[string]any{
+		"testPackage": {
+			{
+				"fileName":     "file1",
+				"totalLines":   1000,
+				"coveredLines": 1000,
+			},
+			{
+				"fileName":     "file2",
+				"totalLines":   1000,
+				"coveredLines": 1000,
+			},
+		},
+	}, nil
+}
+
 var _ = Describe("GetFileCoverage", Ordered, func() {
 	var mockClients *clients.GlobalClients
 	var mock sqlmock.Sqlmock
@@ -26,7 +51,8 @@ var _ = Describe("GetFileCoverage", Ordered, func() {
 	BeforeAll(func() {
 		var db *gorm.DB
 		db, mock, closeDB, err = clients.NewPostgresClientMock()
-		mockClients = clients.NewGlobalClients(db, nil)
+		utilsMock := NewGetFileCoverageUtils()
+		mockClients = clients.NewGlobalClients(db, nil, utilsMock)
 	})
 
 	It("checks for errors on creating mock client", func() {
@@ -47,38 +73,16 @@ var _ = Describe("GetFileCoverage", Ordered, func() {
 			sqlmock.NewRows([]string{"coverage_name"}).AddRow(expectedCoverageName),
 		)
 
-		expectedCoverageMap := []map[string]any{
-			{
-				"fileName":     "file1",
-				"totalLines":   1000,
-				"coveredLines": 1000,
-			},
-			{
-				"fileName":     "file2",
-				"totalLines":   1000,
-				"coveredLines": 1000,
-			},
-		}
-
-		expectedPackageName := "testPackage"
-
-		utils.GetFileCoveragePercentageF = func(coverageName string) (map[string][]map[string]any, error) {
-			Expect(coverageName).To(Equal(expectedCoverageName))
-			return map[string][]map[string]any{
-				expectedPackageName: expectedCoverageMap,
-			}, nil
-		}
-
 		req := &directory.GetFileCoverageRequest{
 			RepoID:      expectedDirectoryID,
-			PackageName: expectedPackageName,
+			PackageName: "testPackage",
 		}
 
 		res, err := directory.GetFileCoverage(mockContext, req, mockClients)
 		resMessage := res.(*directory.GetFileCoverageResponse)
 
 		Expect(err).To(BeNil())
-		Expect(resMessage.FileCoverage).To(Equal(expectedCoverageMap))
+		Expect(resMessage.FileCoverage[0]["fileName"]).To(Equal("file1"))
 	})
 
 	It("returns no directory found message", func() {

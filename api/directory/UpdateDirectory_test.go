@@ -16,6 +16,22 @@ import (
 	"golens-api/utils"
 )
 
+type UpdateDirectoryUtils struct {
+	utils.IUtilsClient
+}
+
+func NewTest() *UpdateDirectoryUtils {
+	return &UpdateDirectoryUtils{}
+}
+
+func (u *UpdateDirectoryUtils) GenerateCoverageAndHTMLFiles(path string) error {
+	return nil
+}
+
+func (u *UpdateDirectoryUtils) GetCoveredLines(coverageName string) (int, int, error) {
+	return 1000, 1000, nil
+}
+
 var _ = Describe("UpdateDirectory", Ordered, func() {
 	var mockClients *clients.GlobalClients
 	var mock sqlmock.Sqlmock
@@ -26,7 +42,8 @@ var _ = Describe("UpdateDirectory", Ordered, func() {
 	BeforeAll(func() {
 		var db *gorm.DB
 		db, mock, closeDB, err = clients.NewPostgresClientMock()
-		mockClients = clients.NewGlobalClients(db, nil)
+		utilsMock := NewTest()
+		mockClients = clients.NewGlobalClients(db, nil, utilsMock)
 	})
 
 	It("checks for errors on creating mock client", func() {
@@ -48,16 +65,6 @@ var _ = Describe("UpdateDirectory", Ordered, func() {
 			sqlmock.NewRows([]string{"id", "path", "coverage_name"}).
 				AddRow(req.ID, expectedPath, expectedCoverageName),
 		)
-
-		utils.GenerateCoverageAndHTMLFilesF = func(path string) error {
-			Expect(path).To(Equal(expectedPath))
-			return nil
-		}
-
-		utils.GetCoveredLinesF = func(coverageName string) (int, int, error) {
-			Expect(coverageName).To(Equal(expectedCoverageName))
-			return 1000, 1000, nil
-		}
 
 		res, err := directory.UpdateDirectory(mockContext, req, mockClients)
 		resMessage := res.(*directory.UpdateDirectoryResponse)

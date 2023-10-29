@@ -28,7 +28,8 @@ var _ = Describe("DeleteDirectory", Ordered, func() {
 	BeforeAll(func() {
 		var db *gorm.DB
 		db, mock, closeDB, err = clients.NewPostgresClientMock()
-		mockClients = clients.NewGlobalClients(db, nil)
+		utilsMock := utils.NewMockUtilsClient()
+		mockClients = clients.NewGlobalClients(db, nil, utilsMock)
 	})
 
 	It("checks for errors on creating mock client", func() {

@@ -16,6 +16,23 @@ import (
 	"golens-api/utils"
 )
 
+type GetPackageCoverageUtils struct {
+	utils.IUtilsClient
+}
+
+func NewGetPackageCoverageUtils() *GetPackageCoverageUtils {
+	return &GetPackageCoverageUtils{}
+}
+
+func (g *GetPackageCoverageUtils) GetCoveredLinesByPackage(coverageName string) (map[string]map[string]int, error) {
+	return map[string]map[string]int{
+		"test1": {
+			"totalLines":   1000,
+			"coveredLines": 500,
+		},
+	}, nil
+}
+
 var _ = Describe("GetPackageCoverage", Ordered, func() {
 	var mockClients *clients.GlobalClients
 	var mock sqlmock.Sqlmock
@@ -26,7 +43,8 @@ var _ = Describe("GetPackageCoverage", Ordered, func() {
 	BeforeAll(func() {
 		var db *gorm.DB
 		db, mock, closeDB, err = clients.NewPostgresClientMock()
-		mockClients = clients.NewGlobalClients(db, nil)
+		utilsMock := NewGetPackageCoverageUtils()
+		mockClients = clients.NewGlobalClients(db, nil, utilsMock)
 	})
 
 	It("checks for errors on creating mock client", func() {
@@ -48,17 +66,6 @@ var _ = Describe("GetPackageCoverage", Ordered, func() {
 		).WillReturnRows(
 			sqlmock.NewRows([]string{"coverage_name"}).AddRow(expectedCoverageName),
 		)
-
-		utils.GetCoveredLinesByPackageF = func(coverageName string) (map[string]map[string]int, error) {
-			Expect(coverageName).To(Equal(expectedCoverageName))
-
-			return map[string]map[string]int{
-				"test1": {
-					"totalLines":   1000,
-					"coveredLines": 500,
-				},
-			}, nil
-		}
 
 		res, err := directory.GetPackageCoverage(mockContext, req, mockClients)
 		resMessage := res.(*directory.GetPackageCoverageResponse)

@@ -4,7 +4,6 @@ import (
 	"golens-api/api"
 	"golens-api/clients"
 	"golens-api/models"
-	"golens-api/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -35,7 +34,7 @@ func GetPackageCoverage(
 		}, nil
 	}
 
-	coveredLinesByPackage, err := utils.GetCoveredLinesByPackageF(directory.CoverageName)
+	coveredLinesByPackage, err := clients.Utils.GetCoveredLinesByPackage(directory.CoverageName)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}

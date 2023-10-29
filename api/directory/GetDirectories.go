@@ -4,7 +4,6 @@ import (
 	"golens-api/api"
 	"golens-api/clients"
 	"golens-api/models"
-	"golens-api/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -33,7 +32,7 @@ func GetDirectories(
 	var directoryMaps []map[string]any
 
 	for _, directory := range directories {
-		totalLines, coveredLines, err := utils.GetCoveredLinesF(directory.CoverageName)
+		totalLines, coveredLines, err := clients.Utils.GetCoveredLines(directory.CoverageName)
 		if err != nil {
 			return nil, &api.Error{
 				Err:    err,

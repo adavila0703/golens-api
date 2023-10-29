@@ -4,7 +4,6 @@ import (
 	"golens-api/api"
 	"golens-api/clients"
 	"golens-api/models"
-	"golens-api/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -36,7 +35,7 @@ func GetFileCoverage(
 		}, nil
 	}
 
-	fileCoverage, err := utils.GetFileCoveragePercentageF(directory.CoverageName)
+	fileCoverage, err := clients.Utils.GetFileCoveragePercentage(directory.CoverageName)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}

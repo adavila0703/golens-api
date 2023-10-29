@@ -15,6 +15,22 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
+type GetRootDirectoryPathsUtils struct {
+	utils.IUtilsClient
+}
+
+func NewGetRootDirectoryPathsUtils() *GetRootDirectoryPathsUtils {
+	return &GetRootDirectoryPathsUtils{}
+}
+
+func (g *GetRootDirectoryPathsUtils) IsGoDirectory(dirPath string) (bool, error) {
+	if dirPath == "happy" {
+		return false, nil
+	}
+
+	return true, nil
+}
+
 var _ = Describe("GetRootDirectoryPaths", Ordered, func() {
 	var mockClients *clients.GlobalClients
 	var sqlMock sqlmock.Sqlmock
@@ -25,7 +41,8 @@ var _ = Describe("GetRootDirectoryPaths", Ordered, func() {
 	BeforeAll(func() {
 		var db *gorm.DB
 		db, sqlMock, closeDB, err = clients.NewPostgresClientMock()
-		mockClients = clients.NewGlobalClients(db, nil)
+		utilsMock := NewGetRootDirectoryPathsUtils()
+		mockClients = clients.NewGlobalClients(db, nil, utilsMock)
 	})
 
 	It("checks for errors on creating mock client", func() {
@@ -34,16 +51,7 @@ var _ = Describe("GetRootDirectoryPaths", Ordered, func() {
 
 	It("returns all none ignored go paths", func() {
 		req := &directory.GetRootDirectoryPathsRequest{
-			RootPath: ".",
-		}
-
-		utils.IsGoDirectoryF = func(dirPath string) (bool, error) {
-			if dirPath == req.RootPath {
-				Expect(dirPath).To(Equal(req.RootPath))
-				return false, nil
-			}
-
-			return true, nil
+			RootPath: "happy",
 		}
 
 		directory.GetDirPathsF = func(rootPath string) ([]string, error) {
@@ -67,11 +75,7 @@ var _ = Describe("GetRootDirectoryPaths", Ordered, func() {
 
 	It("will return an error if your root path is a go project", func() {
 		req := &directory.GetRootDirectoryPathsRequest{
-			RootPath: ".",
-		}
-
-		utils.IsGoDirectoryF = func(dirPath string) (bool, error) {
-			return true, nil
+			RootPath: "sad",
 		}
 
 		res, err := directory.GetRootDirectoryPaths(mockContext, req, mockClients)

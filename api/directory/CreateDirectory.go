@@ -4,7 +4,6 @@ import (
 	"golens-api/api"
 	"golens-api/clients"
 	"golens-api/models"
-	"golens-api/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -36,7 +35,7 @@ func CreateDirectory(
 		return nil, nil
 	}
 
-	isGoDirectory, err := utils.IsGoDirectoryF(message.Path)
+	isGoDirectory, err := clients.Utils.IsGoDirectory(message.Path)
 	if !isGoDirectory || err != nil {
 		if err != nil {
 			return nil, &api.Error{
@@ -61,7 +60,7 @@ func CreateDirectory(
 			return errors.WithStack(err)
 		}
 
-		err = utils.GenerateCoverageAndHTMLFilesF(message.Path)
+		err = clients.Utils.GenerateCoverageAndHTMLFiles(message.Path)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -75,7 +74,7 @@ func CreateDirectory(
 		}
 	}
 
-	totalLines, coveredLines, err := utils.GetCoveredLinesF(directory.CoverageName)
+	totalLines, coveredLines, err := clients.Utils.GetCoveredLines(directory.CoverageName)
 	if err != nil {
 		return nil, &api.Error{
 			Err:    err,

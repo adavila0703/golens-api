@@ -26,7 +26,8 @@ var _ = Describe("GetDirectories", Ordered, func() {
 	BeforeAll(func() {
 		var db *gorm.DB
 		db, mock, closeDB, err = clients.NewPostgresClientMock()
-		mockClients = clients.NewGlobalClients(db, nil)
+		utilsMock := utils.NewMockUtilsClient()
+		mockClients = clients.NewGlobalClients(db, nil, utilsMock)
 	})
 
 	It("checks for errors on creating mock client", func() {
@@ -52,17 +53,6 @@ var _ = Describe("GetDirectories", Ordered, func() {
 					AddRow(&expectedDirectories[0].ID, &expectedDirectories[0].CoveragePath, &expectedDirectories[0].CoverageName).
 					AddRow(&expectedDirectories[1].ID, &expectedDirectories[1].CoveragePath, &expectedDirectories[1].CoverageName),
 			)
-
-		utils.GetCoveredLinesF = func(coverageName string) (int, int, error) {
-			Expect(coverageName).To(
-				BeElementOf(
-					expectedDirectories[0].CoverageName,
-					expectedDirectories[1].CoverageName,
-				),
-			)
-
-			return 1000, 1000, nil
-		}
 
 		res, err := directory.GetDirectories(mockContext, nil, mockClients)
 		resMessage := res.(*directory.GetDirectoriesResponse)

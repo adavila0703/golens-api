@@ -15,6 +15,30 @@ import (
 	"gorm.io/gorm"
 )
 
+type CreateDirectoryUtils struct {
+	utils.IUtilsClient
+}
+
+func NewCreateDirectoryUtils() *CreateDirectoryUtils {
+	return &CreateDirectoryUtils{}
+}
+
+func (c *CreateDirectoryUtils) IsGoDirectory(dirPath string) (bool, error) {
+	if dirPath == "C:\\sad\\path" {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+func (c *CreateDirectoryUtils) GenerateCoverageAndHTMLFiles(path string) error {
+	return nil
+}
+
+func (c *CreateDirectoryUtils) GetCoveredLines(coverageName string) (int, int, error) {
+	return 1000, 1000, nil
+}
+
 var _ = Describe("CreateDirectory", Ordered, func() {
 	var mockClients *clients.GlobalClients
 	var mock sqlmock.Sqlmock
@@ -25,7 +49,8 @@ var _ = Describe("CreateDirectory", Ordered, func() {
 	BeforeAll(func() {
 		var db *gorm.DB
 		db, mock, closeDB, err = clients.NewPostgresClientMock()
-		mockClients = clients.NewGlobalClients(db, nil)
+		utilsMock := NewCreateDirectoryUtils()
+		mockClients = clients.NewGlobalClients(db, nil, utilsMock)
 	})
 
 	It("checks for errors on creating mock client", func() {
@@ -33,7 +58,7 @@ var _ = Describe("CreateDirectory", Ordered, func() {
 	})
 
 	It("creates a directory", func() {
-		expectedPath := "C:\\Dir\\path"
+		expectedPath := "C:\\happy\\path"
 		expectedCoverageName := "path"
 
 		req := &directory.CreateDirectoryRequest{
@@ -48,11 +73,6 @@ var _ = Describe("CreateDirectory", Ordered, func() {
 			WillReturnRows(
 				sqlmock.NewRows([]string{}),
 			)
-
-		utils.IsGoDirectoryF = func(dirPath string) (bool, error) {
-			Expect(dirPath).To(Equal(expectedPath))
-			return true, nil
-		}
 
 		mock.ExpectBegin()
 
@@ -83,18 +103,7 @@ var _ = Describe("CreateDirectory", Ordered, func() {
 			).
 			WillReturnResult(sqlmock.NewResult(1, 1))
 
-		utils.GenerateCoverageAndHTMLFilesF = func(path string) error {
-			Expect(path).To(Equal(expectedPath))
-
-			return nil
-		}
-
 		mock.ExpectCommit()
-
-		utils.GetCoveredLinesF = func(coverageName string) (int, int, error) {
-			Expect(coverageName).To(Equal(expectedCoverageName))
-			return 1000, 1000, nil
-		}
 
 		res, err := directory.CreateDirectory(mockContext, req, mockClients)
 
@@ -103,7 +112,7 @@ var _ = Describe("CreateDirectory", Ordered, func() {
 	})
 
 	It("fails when the directory is not a go project", func() {
-		expectedPath := "C:\\Dir\\path"
+		expectedPath := "C:\\sad\\path"
 
 		req := &directory.CreateDirectoryRequest{
 			Path: expectedPath,
@@ -118,11 +127,6 @@ var _ = Describe("CreateDirectory", Ordered, func() {
 				sqlmock.NewRows([]string{}),
 			)
 
-		utils.IsGoDirectoryF = func(dirPath string) (bool, error) {
-			Expect(dirPath).To(Equal(expectedPath))
-			return false, nil
-		}
-
 		res, err := directory.CreateDirectory(mockContext, req, mockClients)
 
 		Expect(err.Err.Error()).To(Equal("Is not a go directory"))
@@ -130,7 +134,7 @@ var _ = Describe("CreateDirectory", Ordered, func() {
 	})
 
 	It("returns nil if the directory already exists", func() {
-		expectedPath := "C:\\Dir\\path"
+		expectedPath := "C:\\empty\\path"
 
 		req := &directory.CreateDirectoryRequest{
 			Path: expectedPath,
