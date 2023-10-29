@@ -57,10 +57,6 @@ var _ = Describe("GetPackageCoverage", Ordered, func() {
 					"totalLines":   1000,
 					"coveredLines": 500,
 				},
-				"test2": {
-					"totalLines":   10000,
-					"coveredLines": 5000,
-				},
 			}, nil
 		}
 

@@ -21,7 +21,6 @@ func GetIgnoredDirectories(
 	message *GetIgnoredDirectoriesRequest,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
-
 	directories := models.GetIgnoredDirectories(ctx, clients.DB)
 
 	return &GetIgnoredDirectoriesResponse{

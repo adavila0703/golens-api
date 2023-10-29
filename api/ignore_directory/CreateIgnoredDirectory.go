@@ -21,7 +21,6 @@ func CreateIgnoredDirectory(
 	message *CreateIgnoredDirectoryRequest,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
-
 	err := models.CreateIgnoredDirectory(ctx, clients.DB, message.DirectoryName)
 
 	if err != nil {

@@ -22,9 +22,7 @@ func DeleteIgnoredDirectory(
 	message *DeleteIgnoredDirectoryRequest,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
-
 	err := models.DeleteIgnoredDirectory(ctx, clients.DB, message.ID)
-
 	if err != nil {
 		return nil, &api.Error{
 			Err: err,

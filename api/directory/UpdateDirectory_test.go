@@ -33,7 +33,7 @@ var _ = Describe("UpdateDirectory", Ordered, func() {
 		Expect(err).To(BeNil())
 	})
 
-	It("updates a directory", Focus, func() {
+	It("updates a directory", func() {
 		expectedPath := "path"
 		expectedCoverageName := "test"
 		req := &directory.UpdateDirectoryRequest{
@@ -63,7 +63,7 @@ var _ = Describe("UpdateDirectory", Ordered, func() {
 		resMessage := res.(*directory.UpdateDirectoryResponse)
 
 		Expect(err).To(BeNil())
-		Expect(resMessage.Directory["id"]).To(Equal(req.ID))
+		Expect(resMessage.Directory["id"]).To(Equal(req.ID.String()))
 		Expect(resMessage.Directory["path"]).To(Equal(expectedPath))
 		Expect(resMessage.Directory["coverageName"]).To(Equal(expectedCoverageName))
 		Expect(resMessage.Directory["totalLines"]).To(Equal(1000))
@@ -87,7 +87,7 @@ var _ = Describe("UpdateDirectory", Ordered, func() {
 		res, err := directory.UpdateDirectory(mockContext, req, mockClients)
 
 		Expect(err).To(BeNil())
-		Expect(res).To(Equal(nil))
+		Expect(res).To(BeNil())
 	})
 
 	AfterEach(func() {

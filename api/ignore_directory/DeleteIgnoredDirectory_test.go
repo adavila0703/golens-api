@@ -1,0 +1,67 @@
+package ignore_directory_test
+
+import (
+	"net/http/httptest"
+	"regexp"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+	"gorm.io/gorm"
+
+	"golens-api/api/ignore_directory"
+	"golens-api/clients"
+)
+
+var _ = Describe("DeleteIgnoredDirectory", Ordered, func() {
+	var mockClients *clients.GlobalClients
+	var mock sqlmock.Sqlmock
+	var closeDB func() error
+	var err error
+	mockContext, _ := gin.CreateTestContext(httptest.NewRecorder())
+
+	BeforeAll(func() {
+		var db *gorm.DB
+		db, mock, closeDB, err = clients.NewPostgresClientMock()
+		mockClients = clients.NewGlobalClients(db, nil)
+	})
+
+	It("checks for errors on creating mock client", func() {
+		Expect(err).To(BeNil())
+	})
+
+	It("deletes an ignored directory", func() {
+		req := &ignore_directory.DeleteIgnoredDirectoryRequest{
+			ID: uuid.New(),
+		}
+
+		mock.ExpectBegin()
+
+		mock.ExpectExec(regexp.QuoteMeta(`
+			UPDATE "ignored_directories" 
+			SET "deleted_at"=$1 
+			WHERE id = $2 AND "ignored_directories"."deleted_at" IS NULL
+		`)).WithArgs(
+			sqlmock.AnyArg(),
+			req.ID,
+		).WillReturnResult(
+			sqlmock.NewResult(1, 1),
+		)
+
+		mock.ExpectCommit()
+
+		_, err := ignore_directory.DeleteIgnoredDirectory(mockContext, req, mockClients)
+
+		Expect(err).To(BeNil())
+	})
+
+	AfterEach(func() {
+		Expect(mock.ExpectationsWereMet()).ToNot(HaveOccurred())
+	})
+
+	AfterAll(func() {
+		closeDB()
+	})
+})

@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"os"
 	"os/exec"
@@ -21,6 +20,8 @@ var (
 	GenerateCoverageAndHTMLFilesF = GenerateCoverageAndHTMLFiles
 	GetWorkingDirectoryF          = GetWorkingDirectory
 	RemoveFileF                   = RemoveFile
+	GetFileCoveragePercentageF    = GetFileCoveragePercentage
+	GetCoveredLinesByPackageF     = GetCoveredLinesByPackage
 )
 
 //	go tool cover -html=coverage.out
@@ -127,22 +128,6 @@ func GenerateCoverageHTML(path string) error {
 	cmd.Run()
 
 	return nil
-}
-
-func ParseCoverageOut() {
-	coverageProfile := "./coverage.out"
-
-	// Parse the coverage profile
-	profiles, err := cover.ParseProfiles(coverageProfile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	// Access coverage information from profiles
-	for _, profile := range profiles {
-		for _, block := range profile.Blocks {
-			fmt.Println(block.EndLine)
-		}
-	}
 }
 
 func CalculateCoverage(totalLines int, coveredLines int) float64 {
