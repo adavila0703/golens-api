@@ -10,13 +10,13 @@ var Clients *GlobalClients
 
 type GlobalClients struct {
 	DB   *gorm.DB
-	Cron *Cron
+	Cron ICron
 	Cov  coverage.ICoverage
 }
 
 func NewGlobalClients(
 	postgres *gorm.DB,
-	cron *Cron,
+	cron ICron,
 	cov coverage.ICoverage,
 ) *GlobalClients {
 	return &GlobalClients{
