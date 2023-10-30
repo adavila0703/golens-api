@@ -3,6 +3,7 @@ package ignore_directory_test
 import (
 	"golens-api/api/ignore_directory"
 	"golens-api/clients"
+	"golens-api/coverage"
 	"net/http/httptest"
 	"regexp"
 
@@ -23,7 +24,8 @@ var _ = Describe("CreateIgnoredDirectory", Ordered, func() {
 	BeforeAll(func() {
 		var db *gorm.DB
 		db, mock, closeDB, err = clients.NewPostgresClientMock()
-		mockClients = clients.NewGlobalClients(db, nil)
+		utilsMock := coverage.NewCoverageMock()
+		mockClients = clients.NewGlobalClients(db, nil, utilsMock)
 	})
 
 	It("checks for errors on creating mock client", func() {

@@ -3,7 +3,6 @@ package directory_test
 import (
 	"golens-api/api/directory"
 	"golens-api/clients"
-	"golens-api/utils"
 	"net/http/httptest"
 	"regexp"
 
@@ -12,18 +11,20 @@ import (
 	. "github.com/onsi/gomega"
 	"gorm.io/gorm"
 
+	"golens-api/coverage"
+
 	"github.com/DATA-DOG/go-sqlmock"
 )
 
-type GetRootDirectoryPathsUtils struct {
-	utils.IUtilsClient
+type GetRootDirectoryPathsCoverage struct {
+	coverage.ICoverage
 }
 
-func NewGetRootDirectoryPathsUtils() *GetRootDirectoryPathsUtils {
-	return &GetRootDirectoryPathsUtils{}
+func NewGetRootDirectoryPathsCoverage() *GetRootDirectoryPathsCoverage {
+	return &GetRootDirectoryPathsCoverage{}
 }
 
-func (g *GetRootDirectoryPathsUtils) IsGoDirectory(dirPath string) (bool, error) {
+func (g *GetRootDirectoryPathsCoverage) IsGoDirectory(dirPath string) (bool, error) {
 	if dirPath == "happy" {
 		return false, nil
 	}
@@ -41,7 +42,7 @@ var _ = Describe("GetRootDirectoryPaths", Ordered, func() {
 	BeforeAll(func() {
 		var db *gorm.DB
 		db, sqlMock, closeDB, err = clients.NewPostgresClientMock()
-		utilsMock := NewGetRootDirectoryPathsUtils()
+		utilsMock := NewGetRootDirectoryPathsCoverage()
 		mockClients = clients.NewGlobalClients(db, nil, utilsMock)
 	})
 

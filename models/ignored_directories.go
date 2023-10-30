@@ -12,6 +12,10 @@ type IgnoredDirectories struct {
 	DirectoryName string
 }
 
+func (i *IgnoredDirectories) Test() {
+
+}
+
 func CreateIgnoredDirectory(ctx *gin.Context, db *gorm.DB, directoryName string) error {
 	ignoredDirectories := &IgnoredDirectories{
 		DirectoryName: directoryName,

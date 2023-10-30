@@ -32,7 +32,7 @@ func GetDirectories(
 	var directoryMaps []map[string]any
 
 	for _, directory := range directories {
-		totalLines, coveredLines, err := clients.Utils.GetCoveredLines(directory.CoverageName)
+		totalLines, coveredLines, err := clients.Cov.GetCoveredLines(directory.CoverageName)
 		if err != nil {
 			return nil, &api.Error{
 				Err:    err,

@@ -57,7 +57,11 @@ func CreateTask(
 	}, nil
 }
 
-func handleJobCreation(ctx *gin.Context, clients *clients.GlobalClients, scheduleType utils.CronJobScheduleType) error {
+func handleJobCreation(
+	ctx *gin.Context,
+	clients *clients.GlobalClients,
+	scheduleType utils.CronJobScheduleType,
+) error {
 	exists := models.CronJobExists(ctx, clients.DB, scheduleType)
 
 	if !exists {

@@ -15,6 +15,7 @@ import (
 	"golens-api/api/directory"
 	"golens-api/api/tasks"
 	"golens-api/clients"
+	"golens-api/coverage"
 	"golens-api/utils"
 )
 
@@ -28,7 +29,7 @@ var _ = Describe("DeleteDirectory", Ordered, func() {
 	BeforeAll(func() {
 		var db *gorm.DB
 		db, mock, closeDB, err = clients.NewPostgresClientMock()
-		utilsMock := utils.NewMockUtilsClient()
+		utilsMock := coverage.NewCoverageMock()
 		mockClients = clients.NewGlobalClients(db, nil, utilsMock)
 	})
 

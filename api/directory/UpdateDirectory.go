@@ -33,12 +33,12 @@ func UpdateDirectory(
 		return nil, nil
 	}
 
-	err = clients.Utils.GenerateCoverageAndHTMLFiles(directory.Path)
+	err = clients.Cov.GenerateCoverageAndHTMLFiles(directory.Path)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}
 
-	totalLines, coveredLines, err := clients.Utils.GetCoveredLines(directory.CoverageName)
+	totalLines, coveredLines, err := clients.Cov.GetCoveredLines(directory.CoverageName)
 	if err != nil {
 		return nil, &api.Error{
 			Err:    err,

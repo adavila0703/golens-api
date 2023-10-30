@@ -13,7 +13,7 @@ import (
 
 	"golens-api/api/directory"
 	"golens-api/clients"
-	"golens-api/utils"
+	"golens-api/coverage"
 )
 
 var _ = Describe("GetDirectories", Ordered, func() {
@@ -26,7 +26,7 @@ var _ = Describe("GetDirectories", Ordered, func() {
 	BeforeAll(func() {
 		var db *gorm.DB
 		db, mock, closeDB, err = clients.NewPostgresClientMock()
-		utilsMock := utils.NewMockUtilsClient()
+		utilsMock := coverage.NewCoverageMock()
 		mockClients = clients.NewGlobalClients(db, nil, utilsMock)
 	})
 

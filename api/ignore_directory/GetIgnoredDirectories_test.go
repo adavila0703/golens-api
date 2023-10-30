@@ -13,6 +13,7 @@ import (
 
 	"golens-api/api/ignore_directory"
 	"golens-api/clients"
+	"golens-api/coverage"
 )
 
 var _ = Describe("GetIgnoredDirectories", Ordered, func() {
@@ -25,7 +26,8 @@ var _ = Describe("GetIgnoredDirectories", Ordered, func() {
 	BeforeAll(func() {
 		var db *gorm.DB
 		db, mock, closeDB, err = clients.NewPostgresClientMock()
-		mockClients = clients.NewGlobalClients(db, nil)
+		utilsMock := coverage.NewCoverageMock()
+		mockClients = clients.NewGlobalClients(db, nil, utilsMock)
 	})
 
 	It("checks for errors on creating mock client", func() {

@@ -32,7 +32,7 @@ func GetRootDirectoryPaths(
 	message *GetRootDirectoryPathsRequest,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
-	isGoDirectory, err := clients.Utils.IsGoDirectory(message.RootPath)
+	isGoDirectory, err := clients.Cov.IsGoDirectory(message.RootPath)
 	if isGoDirectory || err != nil {
 		if err != nil {
 			return nil, &api.Error{
@@ -67,7 +67,7 @@ func GetRootDirectoryPaths(
 
 	var goPaths []string
 	for _, path := range paths {
-		isGoDir, err := clients.Utils.IsGoDirectory(path)
+		isGoDir, err := clients.Cov.IsGoDirectory(path)
 		if err != nil {
 			return nil, &api.Error{
 				Err:    err,

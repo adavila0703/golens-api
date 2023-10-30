@@ -7,6 +7,7 @@ import (
 	"golens-api/api/tasks"
 	"golens-api/clients"
 	"golens-api/config"
+	"golens-api/coverage"
 	"golens-api/middleware"
 	"golens-api/models"
 	"log"
@@ -35,10 +36,13 @@ func main() {
 		log.Fatalf("Cron error: %s", err)
 	}
 
+	utilsClient := coverage.NewCoverage()
+
 	// initialize global clients
 	clients.Clients = clients.NewGlobalClients(
 		postgres,
 		cron,
+		utilsClient,
 	)
 
 	// migrate db models

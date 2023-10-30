@@ -35,7 +35,7 @@ func CreateDirectory(
 		return nil, nil
 	}
 
-	isGoDirectory, err := clients.Utils.IsGoDirectory(message.Path)
+	isGoDirectory, err := clients.Cov.IsGoDirectory(message.Path)
 	if !isGoDirectory || err != nil {
 		if err != nil {
 			return nil, &api.Error{
@@ -60,7 +60,7 @@ func CreateDirectory(
 			return errors.WithStack(err)
 		}
 
-		err = clients.Utils.GenerateCoverageAndHTMLFiles(message.Path)
+		err = clients.Cov.GenerateCoverageAndHTMLFiles(message.Path)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -74,7 +74,7 @@ func CreateDirectory(
 		}
 	}
 
-	totalLines, coveredLines, err := clients.Utils.GetCoveredLines(directory.CoverageName)
+	totalLines, coveredLines, err := clients.Cov.GetCoveredLines(directory.CoverageName)
 	if err != nil {
 		return nil, &api.Error{
 			Err:    err,

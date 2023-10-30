@@ -3,7 +3,7 @@ package directory_test
 import (
 	"golens-api/api/directory"
 	"golens-api/clients"
-	"golens-api/utils"
+	"golens-api/coverage"
 	"net/http/httptest"
 	"regexp"
 
@@ -15,15 +15,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type CreateDirectoryUtils struct {
-	utils.IUtilsClient
+type CreateDirectoryCoverage struct {
+	coverage.ICoverage
 }
 
-func NewCreateDirectoryUtils() *CreateDirectoryUtils {
-	return &CreateDirectoryUtils{}
+func NewCreateDirectoryCoverage() *CreateDirectoryCoverage {
+	return &CreateDirectoryCoverage{}
 }
 
-func (c *CreateDirectoryUtils) IsGoDirectory(dirPath string) (bool, error) {
+func (c *CreateDirectoryCoverage) IsGoDirectory(dirPath string) (bool, error) {
 	if dirPath == "C:\\sad\\path" {
 		return false, nil
 	}
@@ -31,11 +31,11 @@ func (c *CreateDirectoryUtils) IsGoDirectory(dirPath string) (bool, error) {
 	return true, nil
 }
 
-func (c *CreateDirectoryUtils) GenerateCoverageAndHTMLFiles(path string) error {
+func (c *CreateDirectoryCoverage) GenerateCoverageAndHTMLFiles(path string) error {
 	return nil
 }
 
-func (c *CreateDirectoryUtils) GetCoveredLines(coverageName string) (int, int, error) {
+func (c *CreateDirectoryCoverage) GetCoveredLines(coverageName string) (int, int, error) {
 	return 1000, 1000, nil
 }
 
@@ -49,7 +49,7 @@ var _ = Describe("CreateDirectory", Ordered, func() {
 	BeforeAll(func() {
 		var db *gorm.DB
 		db, mock, closeDB, err = clients.NewPostgresClientMock()
-		utilsMock := NewCreateDirectoryUtils()
+		utilsMock := NewCreateDirectoryCoverage()
 		mockClients = clients.NewGlobalClients(db, nil, utilsMock)
 	})
 

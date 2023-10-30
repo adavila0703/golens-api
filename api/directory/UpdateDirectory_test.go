@@ -13,22 +13,22 @@ import (
 
 	"golens-api/api/directory"
 	"golens-api/clients"
-	"golens-api/utils"
+	"golens-api/coverage"
 )
 
-type UpdateDirectoryUtils struct {
-	utils.IUtilsClient
+type UpdateDirectoryCoverage struct {
+	coverage.ICoverage
 }
 
-func NewTest() *UpdateDirectoryUtils {
-	return &UpdateDirectoryUtils{}
+func NewUpdateDirectoryCoverage() *UpdateDirectoryCoverage {
+	return &UpdateDirectoryCoverage{}
 }
 
-func (u *UpdateDirectoryUtils) GenerateCoverageAndHTMLFiles(path string) error {
+func (u *UpdateDirectoryCoverage) GenerateCoverageAndHTMLFiles(path string) error {
 	return nil
 }
 
-func (u *UpdateDirectoryUtils) GetCoveredLines(coverageName string) (int, int, error) {
+func (u *UpdateDirectoryCoverage) GetCoveredLines(coverageName string) (int, int, error) {
 	return 1000, 1000, nil
 }
 
@@ -42,7 +42,7 @@ var _ = Describe("UpdateDirectory", Ordered, func() {
 	BeforeAll(func() {
 		var db *gorm.DB
 		db, mock, closeDB, err = clients.NewPostgresClientMock()
-		utilsMock := NewTest()
+		utilsMock := NewUpdateDirectoryCoverage()
 		mockClients = clients.NewGlobalClients(db, nil, utilsMock)
 	})
 

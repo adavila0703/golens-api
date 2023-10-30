@@ -84,7 +84,7 @@ func updateCoverageForTasks(tasks []models.TaskSchedule) {
 			return
 		}
 
-		err = utils.GenerateCoverageAndHTMLFiles(directory.Path)
+		err = Clients.Cov.GenerateCoverageAndHTMLFiles(directory.Path)
 		if err != nil {
 			log.Printf("Worker Error: %+v", err)
 			return

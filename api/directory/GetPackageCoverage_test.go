@@ -13,18 +13,18 @@ import (
 
 	"golens-api/api/directory"
 	"golens-api/clients"
-	"golens-api/utils"
+	"golens-api/coverage"
 )
 
-type GetPackageCoverageUtils struct {
-	utils.IUtilsClient
+type GetPackageCoverageCoverage struct {
+	coverage.ICoverage
 }
 
-func NewGetPackageCoverageUtils() *GetPackageCoverageUtils {
-	return &GetPackageCoverageUtils{}
+func NewGetPackageCoverageCoverage() *GetPackageCoverageCoverage {
+	return &GetPackageCoverageCoverage{}
 }
 
-func (g *GetPackageCoverageUtils) GetCoveredLinesByPackage(coverageName string) (map[string]map[string]int, error) {
+func (g *GetPackageCoverageCoverage) GetCoveredLinesByPackage(coverageName string) (map[string]map[string]int, error) {
 	return map[string]map[string]int{
 		"test1": {
 			"totalLines":   1000,
@@ -43,7 +43,7 @@ var _ = Describe("GetPackageCoverage", Ordered, func() {
 	BeforeAll(func() {
 		var db *gorm.DB
 		db, mock, closeDB, err = clients.NewPostgresClientMock()
-		utilsMock := NewGetPackageCoverageUtils()
+		utilsMock := NewGetPackageCoverageCoverage()
 		mockClients = clients.NewGlobalClients(db, nil, utilsMock)
 	})
 

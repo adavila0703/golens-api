@@ -34,7 +34,7 @@ func GetPackageCoverage(
 		}, nil
 	}
 
-	coveredLinesByPackage, err := clients.Utils.GetCoveredLinesByPackage(directory.CoverageName)
+	coveredLinesByPackage, err := clients.Cov.GetCoveredLinesByPackage(directory.CoverageName)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}

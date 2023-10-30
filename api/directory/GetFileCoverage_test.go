@@ -13,18 +13,18 @@ import (
 
 	"golens-api/api/directory"
 	"golens-api/clients"
-	"golens-api/utils"
+	"golens-api/coverage"
 )
 
-type GetFileCoverageUtils struct {
-	utils.IUtilsClient
+type GetFileCoverageCoverage struct {
+	coverage.ICoverage
 }
 
-func NewGetFileCoverageUtils() *GetFileCoverageUtils {
-	return &GetFileCoverageUtils{}
+func NewGetFileCoverageCoverage() *GetFileCoverageCoverage {
+	return &GetFileCoverageCoverage{}
 }
 
-func (g *GetFileCoverageUtils) GetFileCoveragePercentage(coverageName string) (map[string][]map[string]any, error) {
+func (g *GetFileCoverageCoverage) GetFileCoveragePercentage(coverageName string) (map[string][]map[string]any, error) {
 	return map[string][]map[string]any{
 		"testPackage": {
 			{
@@ -51,7 +51,7 @@ var _ = Describe("GetFileCoverage", Ordered, func() {
 	BeforeAll(func() {
 		var db *gorm.DB
 		db, mock, closeDB, err = clients.NewPostgresClientMock()
-		utilsMock := NewGetFileCoverageUtils()
+		utilsMock := NewGetFileCoverageCoverage()
 		mockClients = clients.NewGlobalClients(db, nil, utilsMock)
 	})
 
