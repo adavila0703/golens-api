@@ -4,7 +4,6 @@ import (
 	"golens-api/api"
 	"golens-api/clients"
 	"golens-api/models"
-	"golens-api/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -21,7 +20,6 @@ type GetDirectoriesResponse struct {
 func GetDirectories(
 	ctx *gin.Context,
 	message *GetDirectoriesRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 	directories, err := models.GetDirectories(ctx, clients.DB)
@@ -34,7 +32,7 @@ func GetDirectories(
 	var directoryMaps []map[string]any
 
 	for _, directory := range directories {
-		totalLines, coveredLines, err := utils.GetCoveredLines(directory.CoverageName)
+		totalLines, coveredLines, err := clients.Cov.GetCoveredLines(directory.CoverageName)
 		if err != nil {
 			return nil, &api.Error{
 				Err:    err,

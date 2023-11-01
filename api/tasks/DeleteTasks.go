@@ -18,7 +18,6 @@ type DeleteTasksResponse struct {
 func DeleteTasks(
 	ctx *gin.Context,
 	message *DeleteTasksRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 	tasks, err := models.GetTaskSchedules(ctx, clients.DB)
@@ -32,7 +31,7 @@ func DeleteTasks(
 			ScheduleType: task.ScheduleType,
 		}
 
-		_, err := DeleteTask(ctx, deleteTaskRequest, authContext, clients)
+		_, err := DeleteTask(ctx, deleteTaskRequest, clients)
 		if err != nil {
 			return nil, api.InternalServerError(err.Err)
 		}

@@ -4,7 +4,6 @@ import (
 	"golens-api/api"
 	"golens-api/clients"
 	"golens-api/models"
-	"golens-api/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -24,7 +23,6 @@ type CreateDirectoryResponse struct {
 func CreateDirectory(
 	ctx *gin.Context,
 	message *CreateDirectoryRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 	found, err := models.DirectoryExists(ctx, clients.DB, message.Path)
@@ -32,13 +30,13 @@ func CreateDirectory(
 		return nil, api.InternalServerError(err)
 	}
 
+	// TODO: change this to return an error which the frontend can handle
 	if found {
 		return nil, nil
 	}
 
-	isGoDirectory, err := utils.IsGoDirectory(message.Path)
+	isGoDirectory, err := clients.Cov.IsGoDirectory(message.Path)
 	if !isGoDirectory || err != nil {
-
 		if err != nil {
 			return nil, &api.Error{
 				Err:    err,
@@ -46,7 +44,7 @@ func CreateDirectory(
 			}
 		}
 
-		if isGoDirectory {
+		if !isGoDirectory {
 			return nil, &api.Error{
 				Err:    errors.New("Is not a go directory"),
 				Status: http.StatusBadRequest,
@@ -62,7 +60,7 @@ func CreateDirectory(
 			return errors.WithStack(err)
 		}
 
-		err = utils.GenerateCoverageAndHTMLFiles(message.Path)
+		err = clients.Cov.GenerateCoverageAndHTMLFiles(message.Path)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -76,7 +74,7 @@ func CreateDirectory(
 		}
 	}
 
-	totalLines, coveredLines, err := utils.GetCoveredLines(directory.CoverageName)
+	totalLines, coveredLines, err := clients.Cov.GetCoveredLines(directory.CoverageName)
 	if err != nil {
 		return nil, &api.Error{
 			Err:    err,

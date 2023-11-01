@@ -4,7 +4,6 @@ import (
 	"golens-api/api"
 	"golens-api/clients"
 	"golens-api/models"
-	"golens-api/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -23,10 +22,9 @@ type UpdateDirectoryResponse struct {
 func UpdateDirectory(
 	ctx *gin.Context,
 	message *UpdateDirectoryRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
-	found, err := models.DirectoryExistsById(ctx, clients.DB, message.ID)
+	directory, found, err := models.GetDirectory(ctx, clients.DB, message.ID)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}
@@ -35,17 +33,12 @@ func UpdateDirectory(
 		return nil, nil
 	}
 
-	directory, _, err := models.GetDirectory(ctx, clients.DB, message.ID)
+	err = clients.Cov.GenerateCoverageAndHTMLFiles(directory.Path)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}
 
-	err = utils.GenerateCoverageAndHTMLFiles(directory.Path)
-	if err != nil {
-		return nil, api.InternalServerError(err)
-	}
-
-	totalLines, coveredLines, err := utils.GetCoveredLines(directory.CoverageName)
+	totalLines, coveredLines, err := clients.Cov.GetCoveredLines(directory.CoverageName)
 	if err != nil {
 		return nil, &api.Error{
 			Err:    err,

@@ -1,26 +1,27 @@
 package clients
 
 import (
-	redis "github.com/redis/go-redis/v9"
+	"golens-api/coverage"
+
 	"gorm.io/gorm"
 )
 
 var Clients *GlobalClients
 
 type GlobalClients struct {
-	DB    *gorm.DB
-	Redis *redis.Client
-	Cron  *Cron
+	DB   *gorm.DB
+	Cron ICron
+	Cov  coverage.ICoverage
 }
 
 func NewGlobalClients(
 	postgres *gorm.DB,
-	redis *redis.Client,
-	cron *Cron,
+	cron ICron,
+	cov coverage.ICoverage,
 ) *GlobalClients {
 	return &GlobalClients{
-		DB:    postgres,
-		Redis: redis,
-		Cron:  cron,
+		DB:   postgres,
+		Cron: cron,
+		Cov:  cov,
 	}
 }

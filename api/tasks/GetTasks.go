@@ -19,7 +19,6 @@ type GetTasksResponse struct {
 func GetTasks(
 	ctx *gin.Context,
 	message *GetTasksRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 

@@ -19,10 +19,8 @@ type GetIgnoredDirectoriesResponse struct {
 func GetIgnoredDirectories(
 	ctx *gin.Context,
 	message *GetIgnoredDirectoriesRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
-
 	directories := models.GetIgnoredDirectories(ctx, clients.DB)
 
 	return &GetIgnoredDirectoriesResponse{

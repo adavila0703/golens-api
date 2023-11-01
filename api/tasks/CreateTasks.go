@@ -21,7 +21,6 @@ type CreateTasksResponse struct {
 func CreateTasks(
 	ctx *gin.Context,
 	message *CreateTasksRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 	// TODO: there is a bug with the validate tag when you work with int

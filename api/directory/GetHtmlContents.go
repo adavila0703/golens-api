@@ -5,6 +5,7 @@ import (
 	"golens-api/api"
 	"golens-api/clients"
 	"golens-api/models"
+	"golens-api/utils"
 	"os"
 	"strings"
 
@@ -14,9 +15,15 @@ import (
 	"golang.org/x/net/html"
 )
 
+var (
+	// mocks
+	ReadHTMLFromFileF = ReadHTMLFromFile
+)
+
 type GetHtmlContentsRequest struct {
-	FileName string    `json:"fileName" validate:"required"`
-	RepoID   uuid.UUID `json:"repoId" validate:"required"`
+	FileName    string    `json:"fileName" validate:"required"`
+	DirectoryID uuid.UUID `json:"directoryId" validate:"required"`
+	PackageName string    `json:"packageName" validate:"required"`
 }
 
 type GetHtmlContentsResponse struct {
@@ -27,10 +34,9 @@ type GetHtmlContentsResponse struct {
 func GetHtmlContents(
 	ctx *gin.Context,
 	message *GetHtmlContentsRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
-	directory, found, err := models.GetDirectory(ctx, clients.DB, message.RepoID)
+	directory, found, err := models.GetDirectory(ctx, clients.DB, message.DirectoryID)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}
@@ -41,7 +47,7 @@ func GetHtmlContents(
 		}, nil
 	}
 
-	htmlString, err := readHTMLFromFile(directory.CoverageName)
+	htmlString, err := ReadHTMLFromFileF(directory.CoverageName)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}
@@ -53,7 +59,8 @@ func GetHtmlContents(
 
 	var fileID string
 	for optionsKey, optionsValue := range optionsMap {
-		if strings.Contains(optionsValue, message.FileName) {
+		packageFromPath := utils.GetPackageNameFromPath(optionsValue)
+		if strings.HasSuffix(optionsValue, message.FileName+`.go`) && packageFromPath == message.PackageName {
 			fileID = optionsKey
 		}
 	}
@@ -117,7 +124,8 @@ func getElementContentByID(htmlString string, id string) (string, error) {
 	return getElementContent(doc), nil
 }
 
-func readHTMLFromFile(name string) (string, error) {
+// TODO: move this to utils package
+func ReadHTMLFromFile(name string) (string, error) {
 	workingDir, err := os.Getwd()
 	if err != nil {
 		return "", errors.WithStack(err)
@@ -145,7 +153,7 @@ func getSelectOptionsMap(htmlString string) (map[string]string, error) {
 			if len(n.Attr) > 0 {
 				for _, attr := range n.Attr {
 					if attr.Key == "value" {
-						options[attr.Val] = n.FirstChild.Data
+						options[attr.Val] = strings.Split(n.FirstChild.Data, " ")[0]
 					}
 				}
 			}

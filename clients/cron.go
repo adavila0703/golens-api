@@ -8,6 +8,13 @@ import (
 	"github.com/robfig/cron/v3"
 )
 
+type ICron interface {
+	CreateCronJob(schedule utils.CronJobScheduleType, handler func()) (cron.EntryID, error)
+	RemoveCronJob(id cron.EntryID)
+	ApplyRunningJobs() error
+	GetEntries() []cron.Entry
+}
+
 type Cron struct {
 	CronScheduler *cron.Cron
 }

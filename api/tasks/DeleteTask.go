@@ -12,6 +12,11 @@ import (
 	"gorm.io/gorm"
 )
 
+var (
+	// mocks
+	DeleteTaskF = DeleteTask
+)
+
 type DeleteTaskRequest struct {
 	TaskID       uuid.UUID                 `json:"taskID" validate:"required"`
 	ScheduleType utils.CronJobScheduleType `json:"scheduleType"`
@@ -24,7 +29,6 @@ type DeleteTaskResponse struct {
 func DeleteTask(
 	ctx *gin.Context,
 	message *DeleteTaskRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 	if err := models.DeleteTaskSchedule(ctx, clients.DB, message.TaskID); err != nil {

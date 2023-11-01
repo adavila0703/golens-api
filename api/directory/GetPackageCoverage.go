@@ -4,7 +4,6 @@ import (
 	"golens-api/api"
 	"golens-api/clients"
 	"golens-api/models"
-	"golens-api/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -22,10 +21,8 @@ type GetPackageCoverageResponse struct {
 func GetPackageCoverage(
 	ctx *gin.Context,
 	message *GetPackageCoverageRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
-
 	directory, found, err := models.GetDirectory(ctx, clients.DB, message.ID)
 	if err != nil {
 		return nil, api.InternalServerError(err)
@@ -37,7 +34,7 @@ func GetPackageCoverage(
 		}, nil
 	}
 
-	coveredLinesByPackage, err := utils.GetCoveredLinesByPackage(directory.CoverageName)
+	coveredLinesByPackage, err := clients.Cov.GetCoveredLinesByPackage(directory.CoverageName)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}

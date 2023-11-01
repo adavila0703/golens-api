@@ -13,6 +13,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+var (
+	// mocks
+	GetDirPathsF = getDirPaths
+)
+
 type GetRootDirectoryPathsRequest struct {
 	RootPath string `json:"rootPath" validate:"required"`
 }
@@ -25,12 +30,10 @@ type GetRootDirectoryPathsResponse struct {
 func GetRootDirectoryPaths(
 	ctx *gin.Context,
 	message *GetRootDirectoryPathsRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
-	isGoDirectory, err := utils.IsGoDirectory(message.RootPath)
+	isGoDirectory, err := clients.Cov.IsGoDirectory(message.RootPath)
 	if isGoDirectory || err != nil {
-
 		if err != nil {
 			return nil, &api.Error{
 				Err:    err,
@@ -46,7 +49,7 @@ func GetRootDirectoryPaths(
 		}
 	}
 
-	paths, err := getDirPaths(message.RootPath)
+	paths, err := GetDirPathsF(message.RootPath)
 	if err != nil {
 		return nil, &api.Error{
 			Err:    err,
@@ -64,7 +67,7 @@ func GetRootDirectoryPaths(
 
 	var goPaths []string
 	for _, path := range paths {
-		isGoDir, err := utils.IsGoDirectory(path)
+		isGoDir, err := clients.Cov.IsGoDirectory(path)
 		if err != nil {
 			return nil, &api.Error{
 				Err:    err,

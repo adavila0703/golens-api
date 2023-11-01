@@ -27,7 +27,6 @@ type CreateTaskResponse struct {
 func CreateTask(
 	ctx *gin.Context,
 	message *CreateTaskRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 	// TODO: there is a bug with the validate tag when you work with int
@@ -58,7 +57,11 @@ func CreateTask(
 	}, nil
 }
 
-func handleJobCreation(ctx *gin.Context, clients *clients.GlobalClients, scheduleType utils.CronJobScheduleType) error {
+func handleJobCreation(
+	ctx *gin.Context,
+	clients *clients.GlobalClients,
+	scheduleType utils.CronJobScheduleType,
+) error {
 	exists := models.CronJobExists(ctx, clients.DB, scheduleType)
 
 	if !exists {

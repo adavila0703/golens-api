@@ -4,7 +4,6 @@ import (
 	"golens-api/api"
 	"golens-api/clients"
 	"golens-api/models"
-	"golens-api/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -23,7 +22,6 @@ type GetFileCoverageResponse struct {
 func GetFileCoverage(
 	ctx *gin.Context,
 	message *GetFileCoverageRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 	directory, found, err := models.GetDirectory(ctx, clients.DB, message.RepoID)
@@ -37,7 +35,7 @@ func GetFileCoverage(
 		}, nil
 	}
 
-	fileCoverage, err := utils.GetFileCoveragePercentage(directory.CoverageName)
+	fileCoverage, err := clients.Cov.GetFileCoveragePercentage(directory.CoverageName)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}

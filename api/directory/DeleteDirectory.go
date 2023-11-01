@@ -6,7 +6,7 @@ import (
 	"golens-api/api/tasks"
 	"golens-api/clients"
 	"golens-api/models"
-	"os"
+	"golens-api/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -23,7 +23,6 @@ type DeleteDirectoryResponse struct {
 func DeleteDirectory(
 	ctx *gin.Context,
 	message *DeleteDirectoryRequest,
-	authContext *api.AuthContext,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
 	directory, found, err := models.GetDirectory(ctx, clients.DB, message.ID)
@@ -36,7 +35,7 @@ func DeleteDirectory(
 		return nil, api.InternalServerError(err)
 	}
 
-	workingDir, err := os.Getwd()
+	workingDir, err := utils.GetWorkingDirectoryF()
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}
@@ -44,12 +43,12 @@ func DeleteDirectory(
 	coverageProfile := fmt.Sprintf("%s/data/coverage/%s.out", workingDir, directory.CoverageName)
 	htmlFile := fmt.Sprintf("%s/data/html/%s.html", workingDir, directory.CoverageName)
 
-	err = os.Remove(coverageProfile)
+	err = utils.RemoveFileF(coverageProfile)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}
 
-	err = os.Remove(htmlFile)
+	err = utils.RemoveFileF(htmlFile)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}
@@ -59,14 +58,16 @@ func DeleteDirectory(
 		return nil, api.InternalServerError(err)
 	}
 
-	deleteTaskRequest := &tasks.DeleteTaskRequest{
-		TaskID:       task.ID,
-		ScheduleType: task.ScheduleType,
-	}
+	if task != nil {
+		deleteTaskRequest := &tasks.DeleteTaskRequest{
+			TaskID:       task.ID,
+			ScheduleType: task.ScheduleType,
+		}
 
-	_, deleteTaskErr := tasks.DeleteTask(ctx, deleteTaskRequest, authContext, clients)
-	if deleteTaskErr != nil {
-		return nil, api.InternalServerError(err)
+		_, deleteTaskErr := tasks.DeleteTaskF(ctx, deleteTaskRequest, clients)
+		if deleteTaskErr != nil {
+			return nil, api.InternalServerError(err)
+		}
 	}
 
 	return &DeleteDirectoryResponse{

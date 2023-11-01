@@ -56,6 +56,10 @@ func GetTaskScheduleByDirectoryID(ctx *gin.Context, db *gorm.DB, directoryID uui
 		return nil, errors.WithStack(result.Error)
 	}
 
+	if result.RowsAffected == 0 {
+		return nil, nil
+	}
+
 	return taskSchedule, nil
 }
 
