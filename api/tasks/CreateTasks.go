@@ -52,7 +52,7 @@ func CreateTasks(
 			"ScheduleType":     taskSchedule.ScheduleType,
 			"id":               index + 1,
 			"coverageName":     directory.CoverageName,
-			"scheduleTypeName": getScheduleTypeName(taskSchedule.ScheduleType),
+			"scheduleTypeName": GetScheduleTypeName(taskSchedule.ScheduleType),
 		}
 
 		tasks = append(tasks, task)
@@ -64,7 +64,7 @@ func CreateTasks(
 	}, nil
 }
 
-func getScheduleTypeName(scheduleType utils.CronJobScheduleType) string {
+func GetScheduleTypeName(scheduleType utils.CronJobScheduleType) string {
 	switch scheduleType {
 	case 1:
 		return "Daily"
