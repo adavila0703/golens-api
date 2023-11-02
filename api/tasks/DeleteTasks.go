@@ -31,7 +31,7 @@ func DeleteTasks(
 			ScheduleType: task.ScheduleType,
 		}
 
-		_, err := DeleteTask(ctx, deleteTaskRequest, clients)
+		_, err := DeleteTaskF(ctx, deleteTaskRequest, clients)
 		if err != nil {
 			return nil, api.InternalServerError(err.Err)
 		}
