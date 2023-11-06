@@ -12,8 +12,8 @@ type GetIgnoredDirectoriesRequest struct {
 }
 
 type GetIgnoredDirectoriesResponse struct {
-	Directories []models.IgnoredDirectories `json:"directories"`
-	Message     string                      `json:"message"`
+	Directories []models.Ignored `json:"directories"`
+	Message     string           `json:"message"`
 }
 
 func GetIgnoredDirectories(

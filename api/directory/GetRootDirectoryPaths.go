@@ -108,10 +108,10 @@ func getDirPaths(rootPath string) ([]string, error) {
 	return paths, nil
 }
 
-func getIgnoredDirectoriesPath(ignoredDirectories []models.IgnoredDirectories) []string {
+func getIgnoredDirectoriesPath(ignoredDirectories []models.Ignored) []string {
 	var paths []string
 	for _, directory := range ignoredDirectories {
-		paths = append(paths, directory.DirectoryName)
+		paths = append(paths, directory.Name)
 	}
 
 	return paths

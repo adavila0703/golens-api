@@ -7,18 +7,25 @@ import (
 	"gorm.io/gorm"
 )
 
-type IgnoredDirectories struct {
+type IgnoreType int
+
+const (
+	None IgnoreType = iota
+	DirectoryType
+	PathType
+	FileType
+	PackageType
+)
+
+type Ignored struct {
 	BaseModel
-	DirectoryName string
-}
-
-func (i *IgnoredDirectories) Test() {
-
+	Name string
+	Type IgnoreType
 }
 
 func CreateIgnoredDirectory(ctx *gin.Context, db *gorm.DB, directoryName string) error {
-	ignoredDirectories := &IgnoredDirectories{
-		DirectoryName: directoryName,
+	ignoredDirectories := &Ignored{
+		Name: directoryName,
 	}
 
 	results := db.WithContext(ctx).Create(&ignoredDirectories)
@@ -30,9 +37,9 @@ func CreateIgnoredDirectory(ctx *gin.Context, db *gorm.DB, directoryName string)
 	return nil
 }
 
-func GetIgnoredDirectories(ctx *gin.Context, db *gorm.DB) []IgnoredDirectories {
-	var ignoredDirectories []IgnoredDirectories
-	results := db.WithContext(ctx).Model(IgnoredDirectories{}).Find(&ignoredDirectories)
+func GetIgnoredDirectories(ctx *gin.Context, db *gorm.DB) []Ignored {
+	var ignoredDirectories []Ignored
+	results := db.WithContext(ctx).Model(Ignored{}).Find(&ignoredDirectories)
 
 	if results.RowsAffected == 0 {
 		return nil
@@ -42,8 +49,8 @@ func GetIgnoredDirectories(ctx *gin.Context, db *gorm.DB) []IgnoredDirectories {
 }
 
 func DeleteIgnoredDirectory(ctx *gin.Context, db *gorm.DB, id uuid.UUID) error {
-	var ignoredDirectory *IgnoredDirectories
-	result := db.WithContext(ctx).Model(&IgnoredDirectories{}).Where("id = ?", id).Delete(&ignoredDirectory)
+	var ignoredDirectory *Ignored
+	result := db.WithContext(ctx).Model(&Ignored{}).Where("id = ?", id).Delete(&ignoredDirectory)
 
 	if result.Error != nil {
 		return errors.WithStack(result.Error)
