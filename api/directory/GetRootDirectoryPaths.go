@@ -58,7 +58,7 @@ func GetRootDirectoryPaths(
 	}
 
 	ignoredDirectoriesMap := make(map[string]bool)
-	ignoredDirectories := models.GetIgnoredDirectories(ctx, clients.DB)
+	ignoredDirectories := models.GetIgnored(ctx, clients.DB, models.DirectoryType)
 	ignoredDirectoryPaths := getIgnoredDirectoriesPath(ignoredDirectories)
 
 	for _, paths := range ignoredDirectoryPaths {

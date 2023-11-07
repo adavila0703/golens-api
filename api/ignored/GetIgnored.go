@@ -1,4 +1,4 @@
-package ignore_directory
+package ignored
 
 import (
 	"golens-api/api"
@@ -8,22 +8,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type GetIgnoredDirectoriesRequest struct {
+type GetIgnoredRequest struct {
 }
 
-type GetIgnoredDirectoriesResponse struct {
+type GetIgnoredResponse struct {
 	Directories []models.Ignored `json:"directories"`
 	Message     string           `json:"message"`
 }
 
-func GetIgnoredDirectories(
+func GetIgnored(
 	ctx *gin.Context,
-	message *GetIgnoredDirectoriesRequest,
+	message *GetIgnoredRequest,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
-	directories := models.GetIgnoredDirectories(ctx, clients.DB)
+	directories := models.GetIgnored(ctx, clients.DB, models.DirectoryType)
 
-	return &GetIgnoredDirectoriesResponse{
+	return &GetIgnoredResponse{
 		Directories: directories,
 		Message:     "Good!",
 	}, nil

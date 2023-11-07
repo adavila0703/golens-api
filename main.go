@@ -3,7 +3,7 @@ package main
 import (
 	"golens-api/api/directory"
 	"golens-api/api/health"
-	"golens-api/api/ignore_directory"
+	"golens-api/api/ignored"
 	"golens-api/api/tasks"
 	"golens-api/clients"
 	"golens-api/config"
@@ -74,7 +74,7 @@ func main() {
 	apiRouter := router.Group("api")
 	directory.SubRoutes(apiRouter, "directory")
 	tasks.SubRoutes(apiRouter, "tasks")
-	ignore_directory.SubRoutes(apiRouter, "ignore_directory")
+	ignored.SubRoutes(apiRouter, "ignored")
 
 	if config.Cfg.HostPort != "" {
 		err = router.Run(config.Cfg.HostPort)

@@ -1,4 +1,4 @@
-package ignore_directory_test
+package ignored_test
 
 import (
 	"testing"
@@ -9,5 +9,5 @@ import (
 
 func TestIgnoreDirectory(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "IgnoreDirectory Suite")
+	RunSpecs(t, "Ignored Suite")
 }

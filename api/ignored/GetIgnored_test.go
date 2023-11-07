@@ -1,4 +1,4 @@
-package ignore_directory_test
+package ignored_test
 
 import (
 	"net/http/httptest"
@@ -11,12 +11,12 @@ import (
 	. "github.com/onsi/gomega"
 	"gorm.io/gorm"
 
-	"golens-api/api/ignore_directory"
+	"golens-api/api/ignored"
 	"golens-api/clients"
 	"golens-api/coverage"
 )
 
-var _ = Describe("GetIgnoredDirectories", Ordered, func() {
+var _ = Describe("GetIgnored", Ordered, func() {
 	var mockClients *clients.GlobalClients
 	var mock sqlmock.Sqlmock
 	var closeDB func() error
@@ -35,19 +35,19 @@ var _ = Describe("GetIgnoredDirectories", Ordered, func() {
 	})
 
 	It("get ignored directory", func() {
-		req := &ignore_directory.GetIgnoredDirectoriesRequest{}
+		req := &ignored.GetIgnoredRequest{}
 
 		mock.ExpectQuery(regexp.QuoteMeta(`
-			SELECT * FROM "ignored_directories" 
-			WHERE "ignored_directories"."deleted_at" IS NULL
+			SELECT * FROM "ignored" 
+			WHERE "ignored"."deleted_at" IS NULL
 		`)).
 			WithArgs().
 			WillReturnRows(
 				sqlmock.NewRows([]string{"id"}).AddRow(uuid.New()).AddRow(uuid.New()),
 			)
 
-		res, err := ignore_directory.GetIgnoredDirectories(mockContext, req, mockClients)
-		resMessage := res.(*ignore_directory.GetIgnoredDirectoriesResponse)
+		res, err := ignored.GetIgnored(mockContext, req, mockClients)
+		resMessage := res.(*ignored.GetIgnoredResponse)
 
 		Expect(err).To(BeNil())
 		Expect(len(resMessage.Directories)).To(Equal(2))

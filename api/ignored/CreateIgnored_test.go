@@ -1,22 +1,20 @@
-package ignore_directory_test
+package ignored_test
 
 import (
+	"golens-api/api/ignored"
+	"golens-api/clients"
+	"golens-api/coverage"
 	"net/http/httptest"
 	"regexp"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"gorm.io/gorm"
-
-	"golens-api/api/ignore_directory"
-	"golens-api/clients"
-	"golens-api/coverage"
 )
 
-var _ = Describe("DeleteIgnoredDirectory", Ordered, func() {
+var _ = Describe("CreateIgnored", Ordered, func() {
 	var mockClients *clients.GlobalClients
 	var mock sqlmock.Sqlmock
 	var closeDB func() error
@@ -34,27 +32,28 @@ var _ = Describe("DeleteIgnoredDirectory", Ordered, func() {
 		Expect(err).To(BeNil())
 	})
 
-	It("deletes an ignored directory", func() {
-		req := &ignore_directory.DeleteIgnoredDirectoryRequest{
-			ID: uuid.New(),
+	It("creates ignored", func() {
+		req := &ignored.CreateIgnoredRequest{
+			DirectoryName: "test",
 		}
 
 		mock.ExpectBegin()
 
 		mock.ExpectExec(regexp.QuoteMeta(`
-			UPDATE "ignored_directories" 
-			SET "deleted_at"=$1 
-			WHERE id = $2 AND "ignored_directories"."deleted_at" IS NULL
+			INSERT INTO "ignored_directories" 
+			("id","created_at","updated_at","deleted_at","directory_name") 
+			VALUES ($1,$2,$3,$4,$5)
 		`)).WithArgs(
 			sqlmock.AnyArg(),
-			req.ID,
-		).WillReturnResult(
-			sqlmock.NewResult(1, 1),
-		)
+			sqlmock.AnyArg(),
+			sqlmock.AnyArg(),
+			nil,
+			req.DirectoryName,
+		).WillReturnResult(sqlmock.NewResult(1, 1))
 
 		mock.ExpectCommit()
 
-		_, err := ignore_directory.DeleteIgnoredDirectory(mockContext, req, mockClients)
+		_, err := ignored.CreateIgnored(mockContext, req, mockClients)
 
 		Expect(err).To(BeNil())
 	})

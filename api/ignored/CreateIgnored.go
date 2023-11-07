@@ -1,4 +1,4 @@
-package ignore_directory
+package ignored
 
 import (
 	"golens-api/api"
@@ -8,20 +8,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type CreateIgnoredDirectoryRequest struct {
+type CreateIgnoredRequest struct {
 	DirectoryName string `json:"directoryName"`
 }
 
-type CreateIgnoredDirectoryResponse struct {
+type CreateIgnoredResponse struct {
 	Message string `json:"message"`
 }
 
-func CreateIgnoredDirectory(
+func CreateIgnored(
 	ctx *gin.Context,
-	message *CreateIgnoredDirectoryRequest,
+	message *CreateIgnoredRequest,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
-	err := models.CreateIgnoredDirectory(ctx, clients.DB, message.DirectoryName)
+	err := models.CreateIgnored(ctx, clients.DB, message.DirectoryName, models.DirectoryType)
 
 	if err != nil {
 		return nil, &api.Error{
@@ -29,7 +29,7 @@ func CreateIgnoredDirectory(
 		}
 	}
 
-	return &CreateIgnoredDirectoryResponse{
+	return &CreateIgnoredResponse{
 		Message: "Good!",
 	}, nil
 }

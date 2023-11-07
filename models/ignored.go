@@ -23,9 +23,10 @@ type Ignored struct {
 	Type IgnoreType
 }
 
-func CreateIgnoredDirectory(ctx *gin.Context, db *gorm.DB, directoryName string) error {
+func CreateIgnored(ctx *gin.Context, db *gorm.DB, directoryName string, ignoredType IgnoreType) error {
 	ignoredDirectories := &Ignored{
 		Name: directoryName,
+		Type: ignoredType,
 	}
 
 	results := db.WithContext(ctx).Create(&ignoredDirectories)
@@ -37,9 +38,9 @@ func CreateIgnoredDirectory(ctx *gin.Context, db *gorm.DB, directoryName string)
 	return nil
 }
 
-func GetIgnoredDirectories(ctx *gin.Context, db *gorm.DB) []Ignored {
+func GetIgnored(ctx *gin.Context, db *gorm.DB, ignoredType IgnoreType) []Ignored {
 	var ignoredDirectories []Ignored
-	results := db.WithContext(ctx).Model(Ignored{}).Find(&ignoredDirectories)
+	results := db.WithContext(ctx).Model(Ignored{Type: ignoredType}).Find(&ignoredDirectories)
 
 	if results.RowsAffected == 0 {
 		return nil
@@ -48,7 +49,7 @@ func GetIgnoredDirectories(ctx *gin.Context, db *gorm.DB) []Ignored {
 	return ignoredDirectories
 }
 
-func DeleteIgnoredDirectory(ctx *gin.Context, db *gorm.DB, id uuid.UUID) error {
+func DeleteIgnored(ctx *gin.Context, db *gorm.DB, id uuid.UUID) error {
 	var ignoredDirectory *Ignored
 	result := db.WithContext(ctx).Model(&Ignored{}).Where("id = ?", id).Delete(&ignoredDirectory)
 
