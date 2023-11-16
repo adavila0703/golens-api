@@ -34,7 +34,7 @@ var _ = Describe("CreateIgnored", Ordered, func() {
 
 	It("creates ignored", func() {
 		req := &ignored.CreateIgnoredRequest{
-			DirectoryName: "test",
+			Name: "test",
 		}
 
 		mock.ExpectBegin()
@@ -48,7 +48,7 @@ var _ = Describe("CreateIgnored", Ordered, func() {
 			sqlmock.AnyArg(),
 			sqlmock.AnyArg(),
 			nil,
-			req.DirectoryName,
+			req.Name,
 		).WillReturnResult(sqlmock.NewResult(1, 1))
 
 		mock.ExpectCommit()
