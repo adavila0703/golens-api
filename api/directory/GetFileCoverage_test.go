@@ -24,7 +24,7 @@ func NewGetFileCoverageCoverage() *GetFileCoverageCoverage {
 	return &GetFileCoverageCoverage{}
 }
 
-func (g *GetFileCoverageCoverage) GetFileCoveragePercentage(coverageName string) (map[string][]map[string]any, error) {
+func (g *GetFileCoverageCoverage) GetFileCoveragePercentage(coverageName string, ignoredFilesByPackage map[string]map[string]bool) (map[string][]map[string]any, error) {
 	return map[string][]map[string]any{
 		"testPackage": {
 			{

@@ -35,7 +35,7 @@ func (c *CreateDirectoryCoverage) GenerateCoverageAndHTMLFiles(path string) erro
 	return nil
 }
 
-func (c *CreateDirectoryCoverage) GetCoveredLines(coverageName string) (int, int, error) {
+func (c *CreateDirectoryCoverage) GetCoveredLines(coverageName string, ignoredPackages map[string]bool) (int, int, error) {
 	return 1000, 1000, nil
 }
 

@@ -28,7 +28,7 @@ func (u *UpdateDirectoryCoverage) GenerateCoverageAndHTMLFiles(path string) erro
 	return nil
 }
 
-func (u *UpdateDirectoryCoverage) GetCoveredLines(coverageName string) (int, int, error) {
+func (u *UpdateDirectoryCoverage) GetCoveredLines(coverageName string, ignoredPackages map[string]bool) (int, int, error) {
 	return 1000, 1000, nil
 }
 

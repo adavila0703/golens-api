@@ -74,7 +74,9 @@ func CreateDirectory(
 		}
 	}
 
-	totalLines, coveredLines, err := clients.Cov.GetCoveredLines(directory.CoverageName)
+	ignoredPackages := clients.Cov.GetIgnoredPackages(ctx, clients.DB, directory.CoverageName)
+
+	totalLines, coveredLines, err := clients.Cov.GetCoveredLines(directory.CoverageName, ignoredPackages)
 	if err != nil {
 		return nil, &api.Error{
 			Err:    err,

@@ -19,14 +19,22 @@ const (
 
 type Ignored struct {
 	BaseModel
-	Name string
-	Type IgnoreType
+	DirectoryName string
+	Name          string
+	Type          IgnoreType
 }
 
-func CreateIgnored(ctx *gin.Context, db *gorm.DB, directoryName string, ignoredType IgnoreType) error {
+func CreateIgnored(
+	ctx *gin.Context,
+	db *gorm.DB,
+	directoryName string,
+	name string,
+	ignoredType IgnoreType,
+) error {
 	ignoredDirectories := &Ignored{
-		Name: directoryName,
-		Type: ignoredType,
+		DirectoryName: directoryName,
+		Name:          name,
+		Type:          ignoredType,
 	}
 
 	results := db.WithContext(ctx).Create(&ignoredDirectories)

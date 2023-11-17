@@ -24,7 +24,11 @@ func NewGetPackageCoverageCoverage() *GetPackageCoverageCoverage {
 	return &GetPackageCoverageCoverage{}
 }
 
-func (g *GetPackageCoverageCoverage) GetCoveredLinesByPackage(coverageName string) (map[string]map[string]int, error) {
+func (g *GetPackageCoverageCoverage) GetCoveredLinesByPackage(
+	coverageName string,
+	ignoredFilesByPackage map[string]map[string]bool,
+	ignoredPackages map[string]bool,
+) (map[string]map[string]int, error) {
 	return map[string]map[string]int{
 		"test1": {
 			"totalLines":   1000,

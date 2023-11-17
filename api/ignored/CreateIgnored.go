@@ -7,11 +7,13 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type CreateIgnoredRequest struct {
-	Name       string `json:"name"`
-	IgnoreType string `json:"ignoreType"`
+	DirectoryID uuid.UUID `json:"directoryId"`
+	Name        string    `json:"name"`
+	IgnoreType  string    `json:"ignoreType"`
 }
 
 type CreateIgnoredResponse struct {
@@ -28,9 +30,19 @@ func CreateIgnored(
 		return nil, api.InternalServerError(err)
 	}
 
+	directory, found, err := models.GetDirectory(ctx, clients.DB, message.DirectoryID)
+	if err != nil {
+		return nil, api.InternalServerError(err)
+	}
+
+	if !found {
+		return nil, nil
+	}
+
 	err = models.CreateIgnored(
 		ctx,
 		clients.DB,
+		directory.CoverageName,
 		message.Name,
 		models.IgnoreType(ignoreType),
 	)
