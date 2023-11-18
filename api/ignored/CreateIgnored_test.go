@@ -34,7 +34,7 @@ var _ = Describe("CreateIgnored", Ordered, func() {
 		Expect(err).To(BeNil())
 	})
 
-	It("creates ignored", Focus, func() {
+	It("creates ignored", func() {
 		expectedUUID := uuid.New()
 		req := &ignored.CreateIgnoredRequest{
 			Name:        "test",
@@ -54,13 +54,13 @@ var _ = Describe("CreateIgnored", Ordered, func() {
 		mock.ExpectBegin()
 
 		mock.ExpectExec(regexp.QuoteMeta(`
-			INSERT INTO "ignoreds" ("id","created_at","updated_at","deleted_at","directory_name","name","type") 
-			VALUES ($1,$2,$3,$4,$5,$6,$7)
+		INSERT INTO "ignoreds" ("id","created_at","updated_at","deleted_at","directory_name","name","type") 
+		VALUES ($1,$2,$3,$4,$5,$6,$7)
 		`)).WithArgs(
-			expectedUUID,
 			sqlmock.AnyArg(),
 			sqlmock.AnyArg(),
 			sqlmock.AnyArg(),
+			nil,
 			req.Name,
 			req.Name,
 			models.DirectoryType,

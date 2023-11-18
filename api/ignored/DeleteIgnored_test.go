@@ -42,9 +42,9 @@ var _ = Describe("DeleteIgnored", Ordered, func() {
 		mock.ExpectBegin()
 
 		mock.ExpectExec(regexp.QuoteMeta(`
-			UPDATE "ignored" 
+			UPDATE "ignoreds" 
 			SET "deleted_at"=$1 
-			WHERE id = $2 AND "ignored"."deleted_at" IS NULL
+			WHERE id = $2 AND "ignoreds"."deleted_at" IS NULL
 		`)).WithArgs(
 			sqlmock.AnyArg(),
 			req.ID,

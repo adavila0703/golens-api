@@ -31,13 +31,13 @@ func CreateIgnored(
 	name string,
 	ignoredType IgnoreType,
 ) error {
-	ignoredDirectories := &Ignored{
+	ignored := &Ignored{
 		DirectoryName: directoryName,
 		Name:          name,
 		Type:          ignoredType,
 	}
 
-	results := db.WithContext(ctx).Create(&ignoredDirectories)
+	results := db.WithContext(ctx).Create(&ignored)
 
 	if err := results.Error; err != nil {
 		return errors.WithStack(err)
@@ -47,19 +47,23 @@ func CreateIgnored(
 }
 
 func GetIgnored(ctx *gin.Context, db *gorm.DB, ignoredType IgnoreType) []Ignored {
-	var ignoredDirectories []Ignored
-	results := db.WithContext(ctx).Model(Ignored{Type: ignoredType}).Find(&ignoredDirectories)
+	var ignored []Ignored
+	results := db.
+		WithContext(ctx).
+		Model(&Ignored{}).
+		Where("type = ?", ignoredType).
+		Find(&ignored)
 
 	if results.RowsAffected == 0 {
 		return nil
 	}
 
-	return ignoredDirectories
+	return ignored
 }
 
 func DeleteIgnored(ctx *gin.Context, db *gorm.DB, id uuid.UUID) error {
-	var ignoredDirectory *Ignored
-	result := db.WithContext(ctx).Model(&Ignored{}).Where("id = ?", id).Delete(&ignoredDirectory)
+	var ignored *Ignored
+	result := db.WithContext(ctx).Model(&Ignored{}).Where("id = ?", id).Delete(&ignored)
 
 	if result.Error != nil {
 		return errors.WithStack(result.Error)

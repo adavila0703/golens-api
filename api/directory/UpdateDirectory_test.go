@@ -32,6 +32,10 @@ func (u *UpdateDirectoryCoverage) GetCoveredLines(coverageName string, ignoredPa
 	return 1000, 1000, nil
 }
 
+func (u *UpdateDirectoryCoverage) GetIgnoredPackages(ctx *gin.Context, db *gorm.DB, directoryName string) map[string]bool {
+	return nil
+}
+
 var _ = Describe("UpdateDirectory", Ordered, func() {
 	var mockClients *clients.GlobalClients
 	var mock sqlmock.Sqlmock

@@ -37,6 +37,14 @@ func (g *GetPackageCoverageCoverage) GetCoveredLinesByPackage(
 	}, nil
 }
 
+func (g *GetPackageCoverageCoverage) GetIgnoredPackages(ctx *gin.Context, db *gorm.DB, directoryName string) map[string]bool {
+	return nil
+}
+
+func (g *GetPackageCoverageCoverage) GetIgnoredFilesByPackage(ctx *gin.Context, db *gorm.DB, directoryName string) map[string]map[string]bool {
+	return nil
+}
+
 var _ = Describe("GetPackageCoverage", Ordered, func() {
 	var mockClients *clients.GlobalClients
 	var mock sqlmock.Sqlmock

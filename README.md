@@ -22,3 +22,15 @@ Run the app
 ```sh
 godotenv -f .env go run main.go
 ```
+
+Run tests suite
+
+```bash
+go test ./...
+```
+
+or
+
+```bash
+ginkgo ./...
+```

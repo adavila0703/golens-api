@@ -41,6 +41,10 @@ func (g *GetFileCoverageCoverage) GetFileCoveragePercentage(coverageName string,
 	}, nil
 }
 
+func (g *GetFileCoverageCoverage) GetIgnoredFilesByPackage(ctx *gin.Context, db *gorm.DB, directoryName string) map[string]map[string]bool {
+	return nil
+}
+
 var _ = Describe("GetFileCoverage", Ordered, func() {
 	var mockClients *clients.GlobalClients
 	var mock sqlmock.Sqlmock

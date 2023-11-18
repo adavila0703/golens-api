@@ -3,6 +3,7 @@ package directory_test
 import (
 	"golens-api/api/directory"
 	"golens-api/clients"
+	"golens-api/models"
 	"net/http/httptest"
 	"regexp"
 
@@ -61,11 +62,15 @@ var _ = Describe("GetRootDirectoryPaths", Ordered, func() {
 		}
 
 		sqlMock.ExpectQuery(regexp.QuoteMeta(`
-			SELECT * FROM "ignored_directories" 
-			WHERE "ignored_directories"."deleted_at" IS NULL
-		`)).
+			SELECT * 
+			FROM "ignoreds" 
+			WHERE type = $1 
+			AND "ignoreds"."deleted_at" IS NULL
+		`)).WithArgs(
+			models.DirectoryType,
+		).
 			WillReturnRows(
-				sqlmock.NewRows([]string{"directory_name"}).AddRow("test"),
+				sqlmock.NewRows([]string{"name"}).AddRow("test"),
 			)
 
 		res, err := directory.GetRootDirectoryPaths(mockContext, req, mockClients)

@@ -38,12 +38,14 @@ var _ = Describe("GetIgnored", Ordered, func() {
 		req := &ignored.GetIgnoredRequest{}
 
 		mock.ExpectQuery(regexp.QuoteMeta(`
-			SELECT * FROM "ignored" 
-			WHERE "ignored"."deleted_at" IS NULL
+		SELECT * FROM "ignoreds" 
+		WHERE type = $1 AND "ignoreds"."deleted_at" IS NULL
 		`)).
 			WithArgs().
 			WillReturnRows(
-				sqlmock.NewRows([]string{"id"}).AddRow(uuid.New()).AddRow(uuid.New()),
+				sqlmock.NewRows([]string{"id"}).
+					AddRow(uuid.New()).
+					AddRow(uuid.New()),
 			)
 
 		res, err := ignored.GetIgnored(mockContext, req, mockClients)
