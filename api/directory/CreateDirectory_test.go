@@ -35,8 +35,12 @@ func (c *CreateDirectoryCoverage) GenerateCoverageAndHTMLFiles(path string) erro
 	return nil
 }
 
-func (c *CreateDirectoryCoverage) GetCoveredLines(coverageName string) (int, int, error) {
+func (c *CreateDirectoryCoverage) GetCoveredLines(coverageName string, ignoredPackages map[string]bool) (int, int, error) {
 	return 1000, 1000, nil
+}
+
+func (c *CreateDirectoryCoverage) GetIgnoredPackages(ctx *gin.Context, db *gorm.DB, directoryName string) map[string]bool {
+	return nil
 }
 
 var _ = Describe("CreateDirectory", Ordered, func() {

@@ -5,18 +5,23 @@ import (
 	"os"
 	"strings"
 
+	"golens-api/models"
 	"golens-api/utils"
 
+	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"golang.org/x/tools/cover"
+	"gorm.io/gorm"
 )
 
 type ICoverage interface {
 	GenerateCoverageAndHTMLFiles(path string) error
-	GetCoveredLines(coverageName string) (int, int, error)
+	GetCoveredLines(coverageName string, ignoredPackages map[string]bool) (int, int, error)
 	IsGoDirectory(dirPath string) (bool, error)
-	GetFileCoveragePercentage(coverageName string) (map[string][]map[string]any, error)
-	GetCoveredLinesByPackage(coverageName string) (map[string]map[string]int, error)
+	GetFileCoveragePercentage(coverageName string, ignoredFilesByPackage map[string]map[string]bool) (map[string][]map[string]any, error)
+	GetCoveredLinesByPackage(coverageName string, ignoredFilesByPackage map[string]map[string]bool, ignoredPackages map[string]bool) (map[string]map[string]int, error)
+	GetIgnoredFilesByPackage(ctx *gin.Context, db *gorm.DB, directoryName string) map[string]map[string]bool
+	GetIgnoredPackages(ctx *gin.Context, db *gorm.DB, directoryName string) map[string]bool
 }
 
 type Coverage struct {
@@ -26,7 +31,7 @@ func NewCoverage() *Coverage {
 	return &Coverage{}
 }
 
-func (u *Coverage) GenerateCoverageAndHTMLFiles(path string) error {
+func (c *Coverage) GenerateCoverageAndHTMLFiles(path string) error {
 	err := utils.RunGitCommands(path)
 	if err != nil {
 		return errors.WithStack(err)
@@ -50,7 +55,7 @@ func (u *Coverage) GenerateCoverageAndHTMLFiles(path string) error {
 	return nil
 }
 
-func (u *Coverage) GetCoveredLines(coverageName string) (int, int, error) {
+func (c *Coverage) GetCoveredLines(coverageName string, ignoredPackages map[string]bool) (int, int, error) {
 	workingDir, err := os.Getwd()
 	if err != nil {
 		return 0, 0, errors.WithStack(err)
@@ -65,6 +70,12 @@ func (u *Coverage) GetCoveredLines(coverageName string) (int, int, error) {
 	totalLines := 0
 	coveredLines := 0
 	for _, profile := range profiles {
+		packageName := utils.GetPackageNameFromPath(profile.FileName)
+
+		if _, ok := ignoredPackages[packageName]; ok {
+			continue
+		}
+
 		profileTotalStatements := 0
 		profileCoveredStatements := 0
 
@@ -81,7 +92,7 @@ func (u *Coverage) GetCoveredLines(coverageName string) (int, int, error) {
 	return totalLines, coveredLines, nil
 }
 
-func (u *Coverage) IsGoDirectory(dirPath string) (bool, error) {
+func (c *Coverage) IsGoDirectory(dirPath string) (bool, error) {
 	dir, err := os.Open(dirPath)
 	if err != nil {
 		return false, err
@@ -102,7 +113,7 @@ func (u *Coverage) IsGoDirectory(dirPath string) (bool, error) {
 	return false, nil
 }
 
-func (u *Coverage) GetFileCoveragePercentage(coverageName string) (map[string][]map[string]any, error) {
+func (c *Coverage) GetFileCoveragePercentage(coverageName string, ignoredFilesByPackage map[string]map[string]bool) (map[string][]map[string]any, error) {
 	workingDir, err := os.Getwd()
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -121,6 +132,10 @@ func (u *Coverage) GetFileCoveragePercentage(coverageName string) (map[string][]
 		coveredLines := 0
 		fileName := utils.GetProfileNameFromPath(profile.FileName)
 		packageName := utils.GetPackageNameFromPath(profile.FileName)
+
+		if exists, ok := ignoredFilesByPackage[packageName][fileName]; ok && exists {
+			continue
+		}
 
 		for _, block := range profile.Blocks {
 			totalLines += block.NumStmt
@@ -147,7 +162,11 @@ func (u *Coverage) GetFileCoveragePercentage(coverageName string) (map[string][]
 	return fileMap, nil
 }
 
-func (u *Coverage) GetCoveredLinesByPackage(coverageName string) (map[string]map[string]int, error) {
+func (c *Coverage) GetCoveredLinesByPackage(
+	coverageName string,
+	ignoredFilesByPackage map[string]map[string]bool,
+	ignoredPackages map[string]bool,
+) (map[string]map[string]int, error) {
 	workingDir, err := os.Getwd()
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -163,6 +182,15 @@ func (u *Coverage) GetCoveredLinesByPackage(coverageName string) (map[string]map
 
 	for _, profile := range profiles {
 		packageName := utils.GetPackageNameFromPath(profile.FileName)
+		fileName := utils.GetProfileNameFromPath(profile.FileName)
+
+		if _, ok := ignoredPackages[packageName]; ok {
+			continue
+		}
+
+		if exists, ok := ignoredFilesByPackage[packageName][fileName]; exists && ok {
+			continue
+		}
 
 		if _, ok := coveredLinesByPackage[packageName]; !ok {
 			coveredLinesByPackage[packageName] = map[string]int{
@@ -181,4 +209,61 @@ func (u *Coverage) GetCoveredLinesByPackage(coverageName string) (map[string]map
 	}
 
 	return coveredLinesByPackage, nil
+}
+
+func (c *Coverage) GetIgnoredFilesByPackage(
+	ctx *gin.Context,
+	db *gorm.DB,
+	directoryName string,
+) map[string]map[string]bool {
+	ignoredFilesByPackage := make(map[string]map[string]bool)
+
+	ignored := models.GetIgnored(ctx, db, models.FileType)
+
+	for _, ignore := range ignored {
+		if ignore.DirectoryName == directoryName {
+			packageName, fileName := getPackageAndFile(ignore.Name)
+			if packageName == "" && fileName == "" {
+				continue
+			}
+
+			if _, ok := ignoredFilesByPackage[packageName]; !ok {
+				ignoredFilesByPackage[packageName] = map[string]bool{
+					fileName: true,
+				}
+			} else {
+				ignoredFilesByPackage[packageName][fileName] = true
+			}
+
+		}
+	}
+
+	return ignoredFilesByPackage
+}
+
+func (c *Coverage) GetIgnoredPackages(
+	ctx *gin.Context,
+	db *gorm.DB,
+	directoryName string,
+) map[string]bool {
+	ignoredPackages := make(map[string]bool)
+	ignored := models.GetIgnored(ctx, db, models.PackageType)
+
+	for _, ignore := range ignored {
+		if ignore.DirectoryName == directoryName {
+			ignoredPackages[ignore.Name] = true
+		}
+	}
+
+	return ignoredPackages
+}
+
+func getPackageAndFile(name string) (string, string) {
+	splitName := strings.Split(name, "/")
+
+	if len(splitName) != 2 {
+		return "", ""
+	}
+
+	return splitName[0], splitName[1]
 }

@@ -1,4 +1,4 @@
-package ignore_directory
+package ignored
 
 import (
 	"golens-api/api"
@@ -9,27 +9,27 @@ import (
 	"github.com/google/uuid"
 )
 
-type DeleteIgnoredDirectoryRequest struct {
+type DeleteIgnoredRequest struct {
 	ID uuid.UUID `json:"id"`
 }
 
-type DeleteIgnoredDirectoryResponse struct {
+type DeleteIgnoredResponse struct {
 	Message string `json:"message"`
 }
 
-func DeleteIgnoredDirectory(
+func DeleteIgnored(
 	ctx *gin.Context,
-	message *DeleteIgnoredDirectoryRequest,
+	message *DeleteIgnoredRequest,
 	clients *clients.GlobalClients,
 ) (interface{}, *api.Error) {
-	err := models.DeleteIgnoredDirectory(ctx, clients.DB, message.ID)
+	err := models.DeleteIgnored(ctx, clients.DB, message.ID)
 	if err != nil {
 		return nil, &api.Error{
 			Err: err,
 		}
 	}
 
-	return &DeleteIgnoredDirectoryResponse{
+	return &DeleteIgnoredResponse{
 		Message: "Good!",
 	}, nil
 }

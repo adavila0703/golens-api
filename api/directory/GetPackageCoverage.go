@@ -34,7 +34,10 @@ func GetPackageCoverage(
 		}, nil
 	}
 
-	coveredLinesByPackage, err := clients.Cov.GetCoveredLinesByPackage(directory.CoverageName)
+	ignoredFilesByPackage := clients.Cov.GetIgnoredFilesByPackage(ctx, clients.DB, directory.CoverageName)
+	ignoredPackages := clients.Cov.GetIgnoredPackages(ctx, clients.DB, directory.CoverageName)
+
+	coveredLinesByPackage, err := clients.Cov.GetCoveredLinesByPackage(directory.CoverageName, ignoredFilesByPackage, ignoredPackages)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}

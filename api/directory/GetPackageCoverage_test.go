@@ -24,13 +24,25 @@ func NewGetPackageCoverageCoverage() *GetPackageCoverageCoverage {
 	return &GetPackageCoverageCoverage{}
 }
 
-func (g *GetPackageCoverageCoverage) GetCoveredLinesByPackage(coverageName string) (map[string]map[string]int, error) {
+func (g *GetPackageCoverageCoverage) GetCoveredLinesByPackage(
+	coverageName string,
+	ignoredFilesByPackage map[string]map[string]bool,
+	ignoredPackages map[string]bool,
+) (map[string]map[string]int, error) {
 	return map[string]map[string]int{
 		"test1": {
 			"totalLines":   1000,
 			"coveredLines": 500,
 		},
 	}, nil
+}
+
+func (g *GetPackageCoverageCoverage) GetIgnoredPackages(ctx *gin.Context, db *gorm.DB, directoryName string) map[string]bool {
+	return nil
+}
+
+func (g *GetPackageCoverageCoverage) GetIgnoredFilesByPackage(ctx *gin.Context, db *gorm.DB, directoryName string) map[string]map[string]bool {
+	return nil
 }
 
 var _ = Describe("GetPackageCoverage", Ordered, func() {

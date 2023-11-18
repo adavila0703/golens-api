@@ -9,6 +9,6 @@ func MigrateModels(db *gorm.DB) {
 		&Directory{},
 		&TaskSchedule{},
 		&CronJob{},
-		&IgnoredDirectories{},
+		&Ignored{},
 	)
 }

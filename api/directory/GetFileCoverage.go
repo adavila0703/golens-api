@@ -35,7 +35,9 @@ func GetFileCoverage(
 		}, nil
 	}
 
-	fileCoverage, err := clients.Cov.GetFileCoveragePercentage(directory.CoverageName)
+	ignoredFilesByPackage := clients.Cov.GetIgnoredFilesByPackage(ctx, clients.DB, directory.CoverageName)
+
+	fileCoverage, err := clients.Cov.GetFileCoveragePercentage(directory.CoverageName, ignoredFilesByPackage)
 	if err != nil {
 		return nil, api.InternalServerError(err)
 	}
