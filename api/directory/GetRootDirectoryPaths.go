@@ -23,8 +23,11 @@ type GetRootDirectoryPathsRequest struct {
 }
 
 type GetRootDirectoryPathsResponse struct {
-	Message string   `json:"message"`
-	Paths   []string `json:"paths"`
+	Message string `json:"message"`
+	Paths   []struct {
+		Path          string
+		DirectoryName string
+	} `json:"paths"`
 }
 
 func GetRootDirectoryPaths(
@@ -65,7 +68,11 @@ func GetRootDirectoryPaths(
 		ignoredDirectoriesMap[paths] = true
 	}
 
-	var goPaths []string
+	var goPaths []struct {
+		Path          string
+		DirectoryName string
+	}
+
 	for _, path := range paths {
 		isGoDir, err := clients.Cov.IsGoDirectory(path)
 		if err != nil {
@@ -79,7 +86,13 @@ func GetRootDirectoryPaths(
 		_, ok := ignoredDirectoriesMap[directoryName]
 
 		if isGoDir && !ok {
-			goPaths = append(goPaths, path)
+			goPaths = append(goPaths, struct {
+				Path          string
+				DirectoryName string
+			}{
+				Path:          path,
+				DirectoryName: directoryName,
+			})
 		}
 	}
 
