@@ -76,7 +76,13 @@ var _ = Describe("GetRootDirectoryPaths", Ordered, func() {
 		res, err := directory.GetRootDirectoryPaths(mockContext, req, mockClients)
 
 		Expect(err).To(BeNil())
-		Expect(res.(*directory.GetRootDirectoryPathsResponse).Paths).To(Equal([]string{"dir1", "dir1"}))
+		Expect(res.(*directory.GetRootDirectoryPathsResponse).Paths).To(Equal([]struct {
+			Path          string
+			DirectoryName string
+		}{
+			{Path: "dir1", DirectoryName: "dir1"},
+			{Path: "dir1", DirectoryName: "dir1"},
+		}))
 	})
 
 	It("will return an error if your root path is a go project", func() {
